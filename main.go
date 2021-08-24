@@ -110,9 +110,8 @@ var RootCmd = &cobra.Command{
 		if len(args) > 0 || len(directories) > 0 {
 			success = processFiles(args)
 		} else {
-			processCluster()
+			success = processCluster()
 		}
-
 		if !success {
 			os.Exit(1)
 		}
@@ -249,6 +248,9 @@ func removeIgnoredKeys(results []pkg.ValidationResult) []pkg.ValidationResult {
 // contain errors.
 func hasErrors(res []pkg.ValidationResult) bool {
 	for _, r := range res {
+		if r.Deleted || r.Deprecated {
+			return true
+		}
 		if len(r.ErrorsForOriginal) > 0 || len(r.ErrorsForLatest) > 0 {
 			return true
 		}
@@ -329,8 +331,8 @@ func init() {
 
 	viper.SetEnvPrefix("KUBEADD")
 	viper.AutomaticEnv()
-	viper.BindPFlag("schema_location", RootCmd.Flags().Lookup("schema-location"))
-	viper.BindPFlag("filename", RootCmd.Flags().Lookup("filename"))
+	//viper.BindPFlag("schema_location", RootCmd.Flags().Lookup("schema-location"))
+	//viper.BindPFlag("filename", RootCmd.Flags().Lookup("filename"))
 }
 
 func main() {
