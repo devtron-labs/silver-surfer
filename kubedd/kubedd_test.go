@@ -7,7 +7,7 @@ import (
 )
 
 func TestValidateCluster(t *testing.T) {
-	cluster := pkg.NewCluster("/Users/pghildiy/Documents/devtronCode/kube-configs/prod-devtron", "")
+	cluster := pkg.NewCluster("", "")
 	config := pkg.NewDefaultConfig()
 	config.SelectKinds = []string{"ComponentStatus"}
 	config.TargetKubernetesVersion = "1.21"

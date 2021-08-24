@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * Certain portions in this file have been taken from kubeval and where ever
+ * they are, IP and licenses of kubeval are applicable.
  */
 
 package main
@@ -78,8 +80,8 @@ apps/v1 deployment - check
 
 // RootCmd represents the the command to run when kubedd is run
 var RootCmd = &cobra.Command{
-	Short:   "ValidateJson a Kubernetes YAML file against the relevant apiVersion and kind",
-	Long:    `ValidateJson a Kubernetes YAML file against the relevant apiVersion and kind, in case the apiVersion for the kind is deprecated or removed then it validates against the latest available apiVersion`,
+	Short:   "Validates migration of Kubernetes YAML file against specific kubernetes version",
+	Long:    `Validates migration of Kubernetes YAML file against specific kubernetes version, It provides details of issues with the kubernetes object in case they are migrated to cluster with newer kubernetes version`,
 	Version: fmt.Sprintf("Version: %s\nCommit: %s\nDate: %s\n", version, commit, date),
 	Run: func(cmd *cobra.Command, args []string) {
 		if config.IgnoreMissingSchemas && !config.Quiet {

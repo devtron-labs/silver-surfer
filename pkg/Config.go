@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * Certain portions in this file have been taken from kubeval and where ever
+ * they are, IP and licenses of kubeval are applicable.
  */
 
 package pkg

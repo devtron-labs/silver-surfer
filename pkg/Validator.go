@@ -136,23 +136,6 @@ func (ks *kubeSpec) applySchema(object map[string]interface{}, token string) (op
 		validationError = append(validationError, err)
 		return validationError, deprecated
 	}
-	//var scm *openapi3.Schema
-	//var err error
-	//for ; ; {
-	//	ok := false
-	//	if strings.Index(token, "/") > 0 {
-	//		parts := strings.Split(token, "/")
-	//		token = parts[len(parts) - 1]
-	//	}
-	//	dp, err := ks.Components.Schemas.JSONLookup(token)
-	//
-	//	if scm, ok = dp.(*openapi3.Schema); ok {
-	//		break
-	//	}
-	//	if ref, ok := dp.(*openapi3.Ref); ok {
-	//		token = ref.Ref
-	//	}
-	//}
 
 	opts := []openapi3.SchemaValidationOption{openapi3.MultiErrors()}
 	depError := VisitJSON(scm, object, SchemaSettings{MultiError: true})

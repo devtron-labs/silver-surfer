@@ -94,8 +94,6 @@ func visitJSONObject(schema *openapi3.Schema, object map[string]interface{}, set
 					return me
 				}
 			}
-		} else {
-			//fmt.Printf("not found key %s\n", k)
 		}
 	}
 	return me
