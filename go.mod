@@ -1,4 +1,4 @@
-module github.com/devtron-labs/deprecation-checker
+module github.com/devtron-labs/silver-surfer
 
 go 1.15
 

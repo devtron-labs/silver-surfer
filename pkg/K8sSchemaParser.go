@@ -20,9 +20,7 @@ package pkg
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/devtron-labs/deprecation-checker/pkg/log"
 	"github.com/getkin/kin-openapi/openapi2"
 	"github.com/getkin/kin-openapi/openapi2conv"
 	"github.com/getkin/kin-openapi/openapi3"
@@ -31,8 +29,6 @@ import (
 	"io/ioutil"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"net/http"
-	"sort"
-	"strings"
 )
 
 const (
@@ -45,14 +41,22 @@ const (
 	gaVersion         = 3
 )
 
-type KubeChecker interface {
-	IsVersionSupported(releaseVersion, apiVersion, kind string)  bool
-	LoadFromUrl(releaseVersion string, force bool) error
-	LoadFromPath(releaseVersion string, filePath string, force bool) error
+type Validator interface {
 	ValidateJson(spec string, releaseVersion string) (ValidationResult, error)
 	ValidateYaml(spec string, releaseVersion string) (ValidationResult, error)
 	ValidateObject(spec map[string]interface{}, releaseVersion string) (ValidationResult, error)
 	GetKinds(releaseVersion string) ([]schema.GroupVersionKind, error)
+}
+
+type Parser interface {
+	LoadFromUrl(releaseVersion string, force bool) error
+	LoadFromPath(releaseVersion string, filePath string, force bool) error
+}
+
+type KubeChecker interface {
+	IsApiVersionSupported(releaseVersion, apiVersion, kind string)  bool
+	Parser
+	Validator
 }
 
 type kubeCheckerImpl struct {
@@ -84,7 +88,7 @@ func (k *kubeCheckerImpl) LoadFromUrl(releaseVersion string, force bool) error {
 	if _, ok := k.versionMap[releaseVersion]; ok && !force {
 		return nil
 	}
-	data, err := downloadFile(releaseVersion)
+	data, err := k.downloadFile(releaseVersion)
 	if err != nil {
 		//kLog.Debug(fmt.Sprintf("%v", err))
 		return err
@@ -93,7 +97,7 @@ func (k *kubeCheckerImpl) LoadFromUrl(releaseVersion string, force bool) error {
 }
 
 func (k *kubeCheckerImpl) load(data []byte, releaseVersion string) error {
-	openapi, err := loadOpenApi2(data)
+	openapi, err := k.loadOpenApi2(data)
 	if err != nil {
 		//kLog.Debug(fmt.Sprintf("%v", err))
 		return err
@@ -102,7 +106,7 @@ func (k *kubeCheckerImpl) load(data []byte, releaseVersion string) error {
 	return nil
 }
 
-func downloadFile(releaseVersion string) ([]byte, error) {
+func (k *kubeCheckerImpl) downloadFile(releaseVersion string) ([]byte, error) {
 	url := fmt.Sprintf(urlTemplate, releaseVersion)
 	resp, err := http.Get(url)
 	if err != nil {
@@ -119,7 +123,7 @@ func downloadFile(releaseVersion string) ([]byte, error) {
 	return out.Bytes(), nil
 }
 
-func loadOpenApi2(data []byte) (*openapi3.T, error) {
+func (k *kubeCheckerImpl) loadOpenApi2(data []byte) (*openapi3.T, error) {
 	var err error
 	stringData := string(data)
 	stringData, err = sjson.Delete(stringData, intOrStringFormat)
@@ -208,125 +212,13 @@ func (k *kubeCheckerImpl) GetKinds(releaseVersion string) ([]schema.GroupVersion
 	if err != nil {
 		return make([]schema.GroupVersionKind, 0), err
 	}
-	return k.versionMap[releaseVersion].fetchLatestKinds(), nil
+	return k.versionMap[releaseVersion].getLatestKinds(), nil
 }
 
-func (k *kubeCheckerImpl) IsVersionSupported(releaseVersion, apiVersion, kind string) bool {
+func (k *kubeCheckerImpl) IsApiVersionSupported(releaseVersion, apiVersion, kind string) bool {
 	err := k.LoadFromUrl(releaseVersion, false)
 	if err != nil {
 		return false
 	}
-	return k.versionMap[releaseVersion].IsVersionSupported(apiVersion, kind)
-}
-
-type kubeSpec struct {
-	*openapi3.T
-	kindInfoMap             map[string][]*KindInfo
-}
-
-func newKubeSpec(openapi *openapi3.T) *kubeSpec {
-	ks := &kubeSpec{T: openapi}
-	ks.kindInfoMap = ks.buildKindInfoMap()
-	return ks
-}
-
-func (ks *kubeSpec) buildGVKRestPathMap() map[string]string {
-	pathMap := map[string]string{}
-	for path, value := range ks.T.Paths {
-		var method *openapi3.Operation
-		if value.Post != nil {
-			method = value.Post
-		} else if value.Put != nil {
-			method = value.Put
-		}
-		if method != nil {
-			if gvk, ok := method.Extensions["x-kubernetes-group-version-kind"]; ok {
-				gvks, err := getKeyForGVK(gvk.(json.RawMessage))
-				if err != nil {
-					continue
-				}
-				pathMap[gvks] = path
-			}
-		}
-	}
-	return pathMap
-}
-
-func (ks *kubeSpec) buildKindInfoMap() map[string][]*KindInfo {
-	kindMap := map[string][]*KindInfo{}
-	restPath := ks.buildGVKRestPathMap()
-	for component, value := range ks.T.Components.Schemas {
-		if gvk, ok := value.Value.Extensions["x-kubernetes-group-version-kind"]; ok {
-			gvks, err := parseGVK(gvk.(json.RawMessage))
-			if err != nil {
-				continue
-			}
-			kind := strings.ToLower(gvks["kind"])
-			if _, ok := kindMap[kind]; !ok {
-				kindMap[kind] = make([]*KindInfo, 0)
-			}
-			ki := KindInfo{
-				Version:      gvks["version"],
-				Group:        gvks["group"],
-				RestPath:     "",
-				ComponentKey: component,
-				IsGA:         getVersionType(gvks["version"]) == gaVersion,
-			}
-			gvkKey, err := getKeyForGVK(gvk.(json.RawMessage))
-			if err != nil {
-				log.Error(err)
-				continue
-			}
-			if p, ok := restPath[gvkKey]; ok {
-				ki.RestPath = p
-			}
-			kindMap[kind] = append(kindMap[kind], &ki)
-		}
-	}
-	for kind, gvs := range kindMap {
-		sort.Slice(gvs, func(i, j int) bool {
-			return compareVersion(gvs[i].Version, gvs[j].Version)
-		})
-		kindMap[kind] = gvs
-	}
-	return kindMap
-}
-
-func (ks *kubeSpec) fetchLatestKinds() []schema.GroupVersionKind {
-	gvkMap := make(map[string]bool, 0)
-	var gvka []schema.GroupVersionKind
-	for kind, info := range ks.kindInfoMap {
-		last := info[len(info) - 1]
-		if len(last.RestPath) == 0 {
-			continue
-		}
-		gvk := schema.GroupVersionKind{
-			Group:   last.Group,
-			Version: last.Version,
-			Kind:    kind,
-		}
-		if _, ok := gvkMap[gvk.String()]; ok {
-			continue
-		}
-		gvkMap[gvk.String()] = true
-		gvka = append(gvka, gvk)
-	}
-	return gvka
-}
-
-func (ks *kubeSpec) IsVersionSupported(apiVersion, kind string) bool {
-	if kim, ok := ks.kindInfoMap[strings.ToLower(kind)]; ok {
-		//fmt.Printf("found %s \n", kind)
-		for _, ki := range kim {
-			//fmt.Printf("%s:%s:%s\n", apiVersion, ki.Version, ki.RestPath)
-			gv := ki.Version
-			if len(ki.Group) > 0 {
-				gv = fmt.Sprintf("%s/%s", ki.Group, ki.Version)
-			}
-			if strings.EqualFold(gv, apiVersion) && len(ki.RestPath) > 0 {
-				return true
-			}
-		}
-	}
-	return false
+	return k.versionMap[releaseVersion].isApiVersionSupported(apiVersion, kind)
 }

@@ -22,10 +22,9 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/devtron-labs/deprecation-checker/kubedd"
-	"github.com/devtron-labs/deprecation-checker/pkg"
-	log2 "github.com/devtron-labs/deprecation-checker/pkg/log"
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/devtron-labs/silver-surfer/kubedd"
+	"github.com/devtron-labs/silver-surfer/pkg"
+	log2 "github.com/devtron-labs/silver-surfer/pkg/log"
 	"github.com/prometheus/common/log"
 	"io/ioutil"
 	"net/http"
@@ -48,12 +47,6 @@ var (
 	ignoredPathPatterns       = make([]string, 0)
 	kubeconfig                = ""
 	kubecontext               = ""
-	ignoreKeysFromDeprecation = make([]string, 0)
-	ignoreKeysFromValidation  = make([]string, 0)
-	selectNamespaces          = make([]string, 0)
-	ignoreNamespaces          = make([]string, 0)
-	selectKinds               = make([]string, 0)
-	ignoreKinds               = make([]string, 0)
 	// forceColor tells kubedd to use colored output even if
 	// stdout is not a TTY
 	forceColor bool
@@ -151,7 +144,6 @@ func processFiles(args []string) bool {
 		fmt.Println("")
 		fmt.Printf("Results for file %s\n", fileName)
 		fmt.Println("-------------------------------------------")
-		results = removeIgnoredKeys(results)
 		outputManager.PutBulk(results)
 
 		aggResults = append(aggResults, results...)
@@ -185,7 +177,6 @@ func processCluster() bool {
 	fmt.Println("")
 	fmt.Printf("Results for cluster at version %s to %s\n", serverVersion, config.TargetKubernetesVersion)
 	fmt.Println("-------------------------------------------")
-	results = removeIgnoredKeys(results)
 	outputManager.PutBulk(results)
 
 	//aggResults = append(aggResults, results...)
@@ -198,53 +189,7 @@ func processCluster() bool {
 	return success
 }
 
-func removeIgnoredKeys(results []pkg.ValidationResult) []pkg.ValidationResult {
-	var out []pkg.ValidationResult
-	for _, result := range results {
-		if len(result.DeprecationForOriginal) > 0 {
-			var depErr []*pkg.SchemaError
-			for _, schemaError := range result.DeprecationForOriginal {
-				key := strings.Join(schemaError.JSONPointer(), "/")
-				if !pkg.Contains(key, ignoreKeysFromDeprecation) {
-					depErr = append(depErr, schemaError)
-				}
-			}
-			result.DeprecationForOriginal = depErr
-		}
-		if len(result.DeprecationForLatest) > 0 {
-			var depErr []*pkg.SchemaError
-			for _, schemaError := range result.DeprecationForLatest {
-				key := strings.Join(schemaError.JSONPointer(), "/")
-				if !pkg.Contains(key, ignoreKeysFromDeprecation) {
-					depErr = append(depErr, schemaError)
-				}
-			}
-			result.DeprecationForLatest = depErr
-		}
-		if len(result.ErrorsForOriginal) > 0 {
-			var valErr []*openapi3.SchemaError
-			for _, schemaError := range result.ErrorsForOriginal {
-				key := strings.Join(schemaError.JSONPointer(), "/")
-				if !pkg.Contains(key, ignoreKeysFromValidation) {
-					valErr = append(valErr, schemaError)
-				}
-			}
-			result.ErrorsForOriginal = valErr
-		}
-		if len(result.ErrorsForLatest) > 0 {
-			var valErr []*openapi3.SchemaError
-			for _, schemaError := range result.ErrorsForLatest {
-				key := strings.Join(schemaError.JSONPointer(), "/")
-				if !pkg.Contains(key, ignoreKeysFromValidation) {
-					valErr = append(valErr, schemaError)
-				}
-			}
-			result.ErrorsForLatest = valErr
-		}
-		out = append(out, result)
-	}
-	return out
-}
+
 
 // hasErrors returns truthy if any of the provided results
 // contain errors.

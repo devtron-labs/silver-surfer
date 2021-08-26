@@ -20,7 +20,7 @@ package pkg
 import (
 	"encoding/json"
 	"fmt"
-	kLog "github.com/devtron-labs/deprecation-checker/pkg/log"
+	kLog "github.com/devtron-labs/silver-surfer/pkg/log"
 	"math"
 	"regexp"
 	"strconv"

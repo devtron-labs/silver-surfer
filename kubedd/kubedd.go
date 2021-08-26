@@ -20,11 +20,9 @@ package kubedd
 import (
 	"bytes"
 	"fmt"
-	"github.com/devtron-labs/deprecation-checker/pkg"
-	kLog "github.com/devtron-labs/deprecation-checker/pkg/log"
-	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/devtron-labs/silver-surfer/pkg"
+	kLog "github.com/devtron-labs/silver-surfer/pkg/log"
 	"os"
-	"strings"
 )
 
 var yamlSeparator = []byte("\n---\n")
@@ -79,7 +77,7 @@ func Validate(input []byte, conf *pkg.Config) ([]pkg.ValidationResult, error) {
 			latestAPIVersion = result.APIVersion
 		}
 		if _, ok := apiVersionKindCache[fmt.Sprintf("%s/%s", latestAPIVersion, result.Kind)]; !ok {
-			isSupported := kubeC.IsVersionSupported(conf.TargetKubernetesVersion,  latestAPIVersion, result.Kind)
+			isSupported := kubeC.IsApiVersionSupported(conf.TargetKubernetesVersion,  latestAPIVersion, result.Kind)
 			apiVersionKindCache[fmt.Sprintf("%s/%s", latestAPIVersion, result.Kind)] = isSupported
 
 		}
@@ -92,7 +90,7 @@ func Validate(input []byte, conf *pkg.Config) ([]pkg.ValidationResult, error) {
 			result.Deleted = true
 		}
 		if _, ok := apiVersionKindCache[fmt.Sprintf("%s/%s", result.APIVersion, result.Kind)]; !ok {
-			isSupported := kubeC.IsVersionSupported(conf.TargetKubernetesVersion,  result.APIVersion, result.Kind)
+			isSupported := kubeC.IsApiVersionSupported(conf.TargetKubernetesVersion,  result.APIVersion, result.Kind)
 			apiVersionKindCache[fmt.Sprintf("%s/%s", result.APIVersion, result.Kind)] = isSupported
 		}
 		isSupported = apiVersionKindCache[fmt.Sprintf("%s/%s", result.APIVersion, result.Kind)]
@@ -100,24 +98,7 @@ func Validate(input []byte, conf *pkg.Config) ([]pkg.ValidationResult, error) {
 		validationResults[i] = result
 	}
 
-	for i, result := range validationResults {
-		var errorsForLatest []*openapi3.SchemaError
-		var errorsForOriginal []*openapi3.SchemaError
-		for _, schemaError := range result.ErrorsForLatest {
-			if !conf.IgnoreNullErrors || strings.TrimSpace(schemaError.Reason) != "Value is not nullable" {
-				errorsForLatest = append(errorsForLatest, schemaError)
-			}
-		}
-		result.ErrorsForLatest = errorsForLatest
-		for _, schemaError := range result.ErrorsForOriginal {
-			if !conf.IgnoreNullErrors  || strings.TrimSpace(schemaError.Reason) != "Value is not nullable" {
-				errorsForOriginal = append(errorsForOriginal, schemaError)
-			}
-		}
-		result.ErrorsForOriginal = errorsForOriginal
-		validationResults[i] = result
-	}
-	return validationResults, nil
+	return pkg.FilterValidationResults(validationResults, conf), nil
 }
 
 func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationResult, error) {
@@ -153,9 +134,9 @@ func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationRe
 	objects := cluster.FetchK8sObjects(resources, conf)
 	var validationResults []pkg.ValidationResult
 	for _, obj := range objects {
-		annon := obj.GetAnnotations()
+		annotations := obj.GetAnnotations()
 		k8sObj := ""
-		if val, ok := annon["kubectl.kubernetes.io/last-applied-configuration"]; ok {
+		if val, ok := annotations["kubectl.kubernetes.io/last-applied-configuration"]; ok {
 			k8sObj = val
 		} else {
 			bt, err := obj.MarshalJSON()
@@ -171,18 +152,28 @@ func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationRe
 		}
 		validationResults = append(validationResults, validationResult)
 	}
+	validationResults = IsVersionSupported(validationResults, kubeC, conf)
+
+	return pkg.FilterValidationResults(validationResults, conf), nil
+}
+
+func IsVersionSupported(validationResults []pkg.ValidationResult, kubeC pkg.KubeChecker, conf *pkg.Config) []pkg.ValidationResult {
 	apiVersionKindCache := make(map[string]bool, 0)
-	for i, result := range validationResults {
+	var vr []pkg.ValidationResult
+	for _, result := range validationResults {
 		latestAPIVersion := result.LatestAPIVersion
 		if len(result.LatestAPIVersion) == 0 {
 			latestAPIVersion = result.APIVersion
 		}
-		if _, ok := apiVersionKindCache[fmt.Sprintf("%s/%s", latestAPIVersion, result.Kind)]; !ok {
-			isSupported := kubeC.IsVersionSupported(conf.TargetKubernetesVersion,  latestAPIVersion, result.Kind)
-			apiVersionKindCache[fmt.Sprintf("%s/%s", latestAPIVersion, result.Kind)] = isSupported
+		latestAPIVersionKind := fmt.Sprintf("%s/%s", latestAPIVersion, result.Kind)
+		apiVersionKind := fmt.Sprintf("%s/%s", result.APIVersion, result.Kind)
+
+		if _, ok := apiVersionKindCache[latestAPIVersionKind]; !ok {
+			isSupported := kubeC.IsApiVersionSupported(conf.TargetKubernetesVersion, latestAPIVersion, result.Kind)
+			apiVersionKindCache[latestAPIVersionKind] = isSupported
 
 		}
-		isSupported := apiVersionKindCache[fmt.Sprintf("%s/%s", latestAPIVersion, result.Kind)]
+		isSupported := apiVersionKindCache[latestAPIVersionKind]
 
 		if isSupported {
 			result.IsVersionSupported = 1
@@ -190,31 +181,15 @@ func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationRe
 			result.IsVersionSupported = 2
 			result.Deleted = true
 		}
-		if _, ok := apiVersionKindCache[fmt.Sprintf("%s/%s", result.APIVersion, result.Kind)]; !ok {
-			isSupported := kubeC.IsVersionSupported(conf.TargetKubernetesVersion,  result.APIVersion, result.Kind)
-			apiVersionKindCache[fmt.Sprintf("%s/%s", result.APIVersion, result.Kind)] = isSupported
-		}
-		isSupported = apiVersionKindCache[fmt.Sprintf("%s/%s", result.APIVersion, result.Kind)]
-		result.Deleted = !isSupported
-		validationResults[i] = result
-	}
 
-	for i, result := range validationResults {
-		var errorsForLatest []*openapi3.SchemaError
-		var errorsForOriginal []*openapi3.SchemaError
-		for _, schemaError := range result.ErrorsForLatest {
-			if !conf.IgnoreNullErrors || strings.TrimSpace(schemaError.Reason) != "Value is not nullable" {
-				errorsForLatest = append(errorsForLatest, schemaError)
-			}
+		if _, ok := apiVersionKindCache[apiVersionKind]; !ok {
+			isSupported := kubeC.IsApiVersionSupported(conf.TargetKubernetesVersion, result.APIVersion, result.Kind)
+			apiVersionKindCache[apiVersionKind] = isSupported
 		}
-		result.ErrorsForLatest = errorsForLatest
-		for _, schemaError := range result.ErrorsForOriginal {
-			if !conf.IgnoreNullErrors  || strings.TrimSpace(schemaError.Reason) != "Value is not nullable" {
-				errorsForOriginal = append(errorsForOriginal, schemaError)
-			}
-		}
-		result.ErrorsForOriginal = errorsForOriginal
-		validationResults[i] = result
+		isSupported = apiVersionKindCache[apiVersionKind]
+		result.Deleted = !isSupported
+		vr = append(vr, result)
 	}
-	return validationResults, nil
+	return vr
 }
+

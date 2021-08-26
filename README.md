@@ -2,8 +2,6 @@
 
 ## Motivation
 
-https://github.com/kubernetes/kubernetes/issues/58131#issuecomment-403829566
-
 Currently there is no easy way to upgrade kubernetes objects in case of kubernetes upgrade. There are some tools
 which are available for this purpose, but we found then inadequate for migration requirements.
 

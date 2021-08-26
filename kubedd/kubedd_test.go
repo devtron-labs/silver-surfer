@@ -1,7 +1,7 @@
 package kubedd
 
 import (
-	"github.com/devtron-labs/deprecation-checker/pkg"
+	"github.com/devtron-labs/silver-surfer/pkg"
 	"reflect"
 	"testing"
 )
