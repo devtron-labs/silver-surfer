@@ -1,4 +1,7 @@
 # .goreleaser.yml
+before:
+  hooks:
+    - go mod download
 builds:
   # You can have multiple builds defined as a yaml list
   -
@@ -10,3 +13,50 @@ builds:
     # Can be a path (e.g. `bin/app`) to wrap the binary in a directory.
     # Default is the name of the project directory.
     binary: kubedd
+
+    env:
+      - CGO_ENABLED=0
+
+    goos:
+      - windows
+      - linux
+      - darwin
+
+    goarch:
+      - amd64
+      - arm
+      - arm64
+
+    goarm:
+      - 6
+      - 7
+  archives:
+    - format: tar.gz
+      format_overrides:
+        - goos: windows
+          format: zip
+  checksum:
+    name_template: 'checksums.txt'
+  snapshot:
+    name_template: "{{ .Tag }}-next"
+  changelog:
+    sort: asc
+    filters:
+      exclude:
+        - '^docs:'
+        - '^test:'
+  brews:
+    - github:
+        owner: devtron
+        name: homebrew-devtron
+      folder: Formula
+      description: "Validates migration of Kubernetes YAML file to specific kubernetes version"
+      homepage: "https://github.com/devtron/silver-surfer"
+      test: |
+        system "#{bin}/kubedd --version"
+  scoop:
+    bucket:
+      owner: devtron
+      name: scoop-devtron
+    description: "Validates migration of Kubernetes YAML file to specific kubernetes version"
+    homepage: "https://github.com/devtron/silver-surfer"

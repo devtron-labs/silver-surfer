@@ -73,8 +73,8 @@ apps/v1 deployment - check
 
 // RootCmd represents the the command to run when kubedd is run
 var RootCmd = &cobra.Command{
-	Short:   "Validates migration of Kubernetes YAML file against specific kubernetes version",
-	Long:    `Validates migration of Kubernetes YAML file against specific kubernetes version, It provides details of issues with the kubernetes object in case they are migrated to cluster with newer kubernetes version`,
+	Short:   "Validates migration of Kubernetes YAML file to specific kubernetes version",
+	Long:    `Validates migration of Kubernetes YAML file to specific kubernetes version, It provides details of issues with the kubernetes object in case they are migrated to cluster with newer kubernetes version`,
 	Version: fmt.Sprintf("Version: %s\nCommit: %s\nDate: %s\n", version, commit, date),
 	Run: func(cmd *cobra.Command, args []string) {
 		if config.IgnoreMissingSchemas && !config.Quiet {
