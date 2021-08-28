@@ -5,9 +5,9 @@ import (
 	"strings"
 )
 
-func FilterValidationResults(validationResults []ValidationResult, conf *Config) []ValidationResult {
-	var vr []ValidationResult
-	for _, result := range validationResults {
+func FilterValidationResults(result ValidationResult, conf *Config) ValidationResult {
+	//var vr []ValidationResult
+	//for _, result := range validationResults {
 		var errorsForLatest []*openapi3.SchemaError
 		var errorsForOriginal []*openapi3.SchemaError
 		for _, schemaError := range result.ErrorsForLatest {
@@ -22,14 +22,14 @@ func FilterValidationResults(validationResults []ValidationResult, conf *Config)
 			}
 		}
 		result.ErrorsForOriginal = errorsForOriginal
-		vr = append(vr, result)
-	}
-	return removeIgnoredKeys(vr, conf)
+		//vr = append(vr, result)
+	//}
+	return removeIgnoredKeys(result, conf)
 }
 
-func removeIgnoredKeys(results []ValidationResult, conf *Config) []ValidationResult {
-	var out []ValidationResult
-	for _, result := range results {
+func removeIgnoredKeys(result ValidationResult, conf *Config) ValidationResult {
+	//var out []ValidationResult
+	//for _, result := range results {
 		if len(result.DeprecationForOriginal) > 0 {
 			var depErr []*SchemaError
 			for _, schemaError := range result.DeprecationForOriginal {
@@ -70,7 +70,7 @@ func removeIgnoredKeys(results []ValidationResult, conf *Config) []ValidationRes
 			}
 			result.ErrorsForLatest = valErr
 		}
-		out = append(out, result)
-	}
-	return out
+		//out = append(out, result)
+	//}
+	return result
 }

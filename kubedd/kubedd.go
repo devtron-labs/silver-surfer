@@ -62,43 +62,19 @@ func Validate(input []byte, conf *pkg.Config) ([]pkg.ValidationResult, error) {
 	}
 	splits := bytes.Split(input, yamlSeparator)
 	var validationResults []pkg.ValidationResult
+	//isVersionSupported := isVersionSupported()
 	for _, split := range splits {
-		validationResult, err := kubeC.ValidateYaml(string(split), conf.SourceKubernetesVersion)
+		validationResult, err := kubeC.ValidateYaml(string(split), conf.TargetKubernetesVersion)
 		if err != nil {
 			fmt.Printf("err: %v\n", err)
 			continue
 		}
+		//validationResult = isVersionSupported(validationResult, kubeC, conf)
+		validationResult = pkg.FilterValidationResults(validationResult, conf)
 		validationResults = append(validationResults, validationResult)
 	}
-	apiVersionKindCache := make(map[string]bool, 0)
-	for i, result := range validationResults {
-		latestAPIVersion := result.LatestAPIVersion
-		if len(result.LatestAPIVersion) == 0 {
-			latestAPIVersion = result.APIVersion
-		}
-		if _, ok := apiVersionKindCache[fmt.Sprintf("%s/%s", latestAPIVersion, result.Kind)]; !ok {
-			isSupported := kubeC.IsApiVersionSupported(conf.TargetKubernetesVersion,  latestAPIVersion, result.Kind)
-			apiVersionKindCache[fmt.Sprintf("%s/%s", latestAPIVersion, result.Kind)] = isSupported
 
-		}
-		isSupported := apiVersionKindCache[fmt.Sprintf("%s/%s", latestAPIVersion, result.Kind)]
-
-		if isSupported {
-			result.IsVersionSupported = 1
-		} else {
-			result.IsVersionSupported = 2
-			result.Deleted = true
-		}
-		if _, ok := apiVersionKindCache[fmt.Sprintf("%s/%s", result.APIVersion, result.Kind)]; !ok {
-			isSupported := kubeC.IsApiVersionSupported(conf.TargetKubernetesVersion,  result.APIVersion, result.Kind)
-			apiVersionKindCache[fmt.Sprintf("%s/%s", result.APIVersion, result.Kind)] = isSupported
-		}
-		isSupported = apiVersionKindCache[fmt.Sprintf("%s/%s", result.APIVersion, result.Kind)]
-		result.Deleted = !isSupported
-		validationResults[i] = result
-	}
-
-	return pkg.FilterValidationResults(validationResults, conf), nil
+	return validationResults, nil
 }
 
 func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationResult, error) {
@@ -133,6 +109,7 @@ func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationRe
 	}
 	objects := cluster.FetchK8sObjects(resources, conf)
 	var validationResults []pkg.ValidationResult
+	//isVersionSupported := isVersionSupported()
 	for _, obj := range objects {
 		annotations := obj.GetAnnotations()
 		k8sObj := ""
@@ -145,51 +122,50 @@ func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationRe
 			}
 			k8sObj = string(bt)
 		}
-		validationResult, err := kubeC.ValidateJson(k8sObj, serverVersion)
+		validationResult, err := kubeC.ValidateJson(k8sObj, conf.TargetKubernetesVersion)
 		if err != nil {
 			fmt.Printf("err: %v\n", err)
 			continue
 		}
+		//validationResult = isVersionSupported(validationResult, kubeC, conf)
+		validationResult = pkg.FilterValidationResults(validationResult, conf)
 		validationResults = append(validationResults, validationResult)
 	}
-	validationResults = IsVersionSupported(validationResults, kubeC, conf)
 
-	return pkg.FilterValidationResults(validationResults, conf), nil
+
+	return validationResults, nil
 }
 
-func IsVersionSupported(validationResults []pkg.ValidationResult, kubeC pkg.KubeChecker, conf *pkg.Config) []pkg.ValidationResult {
-	apiVersionKindCache := make(map[string]bool, 0)
-	var vr []pkg.ValidationResult
-	for _, result := range validationResults {
-		latestAPIVersion := result.LatestAPIVersion
-		if len(result.LatestAPIVersion) == 0 {
-			latestAPIVersion = result.APIVersion
-		}
-		latestAPIVersionKind := fmt.Sprintf("%s/%s", latestAPIVersion, result.Kind)
-		apiVersionKind := fmt.Sprintf("%s/%s", result.APIVersion, result.Kind)
-
-		if _, ok := apiVersionKindCache[latestAPIVersionKind]; !ok {
-			isSupported := kubeC.IsApiVersionSupported(conf.TargetKubernetesVersion, latestAPIVersion, result.Kind)
-			apiVersionKindCache[latestAPIVersionKind] = isSupported
-
-		}
-		isSupported := apiVersionKindCache[latestAPIVersionKind]
-
-		if isSupported {
-			result.IsVersionSupported = 1
-		} else {
-			result.IsVersionSupported = 2
-			result.Deleted = true
-		}
-
-		if _, ok := apiVersionKindCache[apiVersionKind]; !ok {
-			isSupported := kubeC.IsApiVersionSupported(conf.TargetKubernetesVersion, result.APIVersion, result.Kind)
-			apiVersionKindCache[apiVersionKind] = isSupported
-		}
-		isSupported = apiVersionKindCache[apiVersionKind]
-		result.Deleted = !isSupported
-		vr = append(vr, result)
-	}
-	return vr
-}
+//func isVersionSupported() func(result pkg.ValidationResult, kubeC pkg.KubeChecker, conf *pkg.Config) pkg.ValidationResult {
+//	apiVersionKindCache := make(map[string]bool, 0)
+//	return func(result pkg.ValidationResult, kubeC pkg.KubeChecker, conf *pkg.Config) pkg.ValidationResult {
+//		latestAPIVersion := result.LatestAPIVersion
+//		if len(result.LatestAPIVersion) == 0 {
+//			latestAPIVersion = result.APIVersion
+//		}
+//		latestAPIVersionKind := fmt.Sprintf("%s/%s", latestAPIVersion, result.Kind)
+//		apiVersionKind := fmt.Sprintf("%s/%s", result.APIVersion, result.Kind)
+//
+//		if _, ok := apiVersionKindCache[latestAPIVersionKind]; !ok {
+//			isSupported := kubeC.IsApiVersionSupported(conf.TargetKubernetesVersion, latestAPIVersion, result.Kind)
+//			apiVersionKindCache[latestAPIVersionKind] = isSupported
+//
+//		}
+//		isSupported := apiVersionKindCache[latestAPIVersionKind]
+//
+//		if isSupported {
+//			result.IsVersionSupported = 1
+//		} else {
+//			result.IsVersionSupported = 2
+//		}
+//
+//		if _, ok := apiVersionKindCache[apiVersionKind]; !ok {
+//			isSupported := kubeC.IsApiVersionSupported(conf.TargetKubernetesVersion, result.APIVersion, result.Kind)
+//			apiVersionKindCache[apiVersionKind] = isSupported
+//		}
+//		isSupported = apiVersionKindCache[apiVersionKind]
+//		result.Deleted = !isSupported
+//		return result
+//	}
+//}
 
