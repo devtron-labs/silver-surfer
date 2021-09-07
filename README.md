@@ -18,9 +18,26 @@ Supported input formats
 It provides details of issues with the kubernetes object in case they are migrated to cluster with newer kubernetes
 version.
 
-## Install
+## Getting Started
 
-Download kubedd, and it is ready for use.
+#### Quick Installation
+Just with few commands, its ready to serve your cluster.
+
+```bash
+git clone https://github.com/devtron-labs/silver-surfer.git
+cd silver-surfer
+make
+```
+
+It's done. A `bin` directory might have created with the binary ready to use `./kubedd` command.
+
+#### Running Within Container
+You can also use the Dockerfile present to run command within a container and analyse the cluster running in your host machine.
+
+```bash
+docker build -t silver-surfer:v1.0 --build-arg RELEASE=goreleaser --build-arg auth=YOUR_GITHUB_TOKEN
+docker run -v /host/path-to/.kube-dir/:/opt/.kube --privileged --net=host --name kubedd silver-surfer:v1.0 --kubeconfig /opt/.kube/config
+```
 
 ## Usage
 
