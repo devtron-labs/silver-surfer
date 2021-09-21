@@ -38,6 +38,8 @@ You can also use the Dockerfile present to run command within a container and an
 docker build -t silver-surfer:v1.0 --build-arg RELEASE=goreleaser --build-arg auth=YOUR_GITHUB_TOKEN
 docker run -v /host/path-to/.kube-dir/:/opt/.kube --privileged --net=host --name kubedd silver-surfer:v1.0 --kubeconfig /opt/.kube/config
 ```
+#### Using Binaries
+You can download the binaries for Windows, Linux and MacOS from the [release page](https://github.com/devtron-labs/silver-surfer/releases) on this repository.
 
 ## Usage
 
