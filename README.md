@@ -43,24 +43,7 @@ You can download the binaries for Windows, Linux and MacOS from the [release pag
 
 ## Usage
 
-```
-./kubedd 
-
-Results for cluster at version 1.12 to 1.22
--------------------------------------------
->>>> Removed API Version's <<<<
- Namespace   Name                          Kind         API Version (Current Available)   Replace With API Version (Latest Available)   Migration Status                               
- prod        demmoo-prod-ingress           Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        devtron-static-prod-ingress   Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        ghost-blog-dt-prod            Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        ghost-blog-dt-prod-auth       Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        ghost-devtron-blog-prod       Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        oauth2-proxy                  Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        telemetry-prod-ingress        Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        ghost-blog-dt-prod            Deployment   extensions/v1beta1                apps/v1                                       can be migrated with just apiVersion change    
- prod        ghost-devtron-blog-prod       Deployment   extensions/v1beta1                apps/v1                                       can be migrated with just apiVersion change  
-```
-
+<p align="center"><img src="./assets/usage.png"></p>
 
 ## Arguments
 
