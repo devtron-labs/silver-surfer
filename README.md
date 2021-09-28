@@ -18,30 +18,32 @@ Supported input formats
 It provides details of issues with the kubernetes object in case they are migrated to cluster with newer kubernetes
 version.
 
-## Install
+## Getting Started
 
-Download kubedd, and it is ready for use.
+#### Quick Installation
+Just with few commands, its ready to serve your cluster.
+
+```bash
+git clone https://github.com/devtron-labs/silver-surfer.git
+cd silver-surfer
+make
+```
+
+It's done. A `bin` directory might have created with the binary ready to use `./kubedd` command.
+
+#### Running Within Container
+You can also use the Dockerfile present to run command within a container and analyse the cluster running in your host machine.
+
+```bash
+docker build -t silver-surfer:v1.0 --build-arg RELEASE=goreleaser --build-arg auth=YOUR_GITHUB_TOKEN
+docker run -v /host/path-to/.kube-dir/:/opt/.kube --privileged --net=host --name kubedd silver-surfer:v1.0 --kubeconfig /opt/.kube/config
+```
+#### Using Binaries
+You can download the binaries for Windows, Linux and MacOS from the [release page](https://github.com/devtron-labs/silver-surfer/releases) on this repository.
 
 ## Usage
 
-```
-./kubedd 
-
-Results for cluster at version 1.12 to 1.22
--------------------------------------------
->>>> Removed API Version's <<<<
- Namespace   Name                          Kind         API Version (Current Available)   Replace With API Version (Latest Available)   Migration Status                               
- prod        demmoo-prod-ingress           Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        devtron-static-prod-ingress   Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        ghost-blog-dt-prod            Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        ghost-blog-dt-prod-auth       Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        ghost-devtron-blog-prod       Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        oauth2-proxy                  Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        telemetry-prod-ingress        Ingress      extensions/v1beta1                                                              Alert! cannot migrate kubernetes version  
- prod        ghost-blog-dt-prod            Deployment   extensions/v1beta1                apps/v1                                       can be migrated with just apiVersion change    
- prod        ghost-devtron-blog-prod       Deployment   extensions/v1beta1                apps/v1                                       can be migrated with just apiVersion change  
-```
-
+<p align="center"><img src="./assets/usage.png"></p>
 
 ## Arguments
 
