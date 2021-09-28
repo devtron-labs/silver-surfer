@@ -32,6 +32,9 @@ func NewCluster(kubeconfig string, kubecontext string) *Cluster {
 		pathOptions.GlobalFile = kubeconfig
 	}
 	config, err := pathOptions.GetStartingConfig()
+	if err != nil {
+		panic(err)
+	}
 
 	configOverrides := clientcmd.ConfigOverrides{}
 	if kubecontext != "" {
@@ -41,16 +44,16 @@ func NewCluster(kubeconfig string, kubecontext string) *Cluster {
 	clientConfig := clientcmd.NewDefaultClientConfig(*config, &configOverrides)
 	cluster.restConfig, err = clientConfig.ClientConfig()
 	if err != nil {
-		return nil
+		panic(err)
 	}
 
 	if cluster.disco, err = discovery.NewDiscoveryClientForConfig(cluster.restConfig); err != nil {
-		return nil
+		panic(err)
 	}
 
 	cluster.clientset, err = dynamic.NewForConfig(cluster.restConfig)
 	if err != nil {
-		return nil
+		panic(err)
 	}
 
 	return &cluster
