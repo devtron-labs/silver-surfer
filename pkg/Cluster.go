@@ -3,6 +3,8 @@ package pkg
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -12,7 +14,6 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
-	"strings"
 )
 
 type Cluster struct {
@@ -64,7 +65,7 @@ func (c *Cluster) ServerVersion() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s.%s", info.Major, info.Minor), nil
+	return fmt.Sprintf("%s.%s", info.Major, strings.Trim(info.Minor, "+")), nil
 }
 func (c *Cluster) FetchK8sObjects(gvks []schema.GroupVersionKind, conf *Config) []unstructured.Unstructured {
 	var resources []schema.GroupVersionResource
