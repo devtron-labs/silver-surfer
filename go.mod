@@ -7,7 +7,7 @@ require (
 	github.com/getkin/kin-openapi v0.67.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/olekukonko/tablewriter v0.0.5 // indirect
+	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/prometheus/common v0.4.0
 	github.com/spf13/cobra v0.0.0-20180820174524-ff0d02e85550
 	github.com/spf13/viper v1.7.1
@@ -19,6 +19,6 @@ require (
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v0.0.0-20180816142147-da425ebb7609
 	k8s.io/apimachinery v0.22.0
-	sigs.k8s.io/yaml v1.2.0
 	k8s.io/client-go v0.20.4
+	sigs.k8s.io/yaml v1.2.0
 )
