@@ -26,7 +26,9 @@ Just with few commands, its ready to serve your cluster.
 ```bash
 git clone https://github.com/devtron-labs/silver-surfer.git
 cd silver-surfer
-make
+go mod vendor
+go mod download
+make 
 ```
 
 It's done. A `bin` directory might have created with the binary ready to use `./kubedd` command.
