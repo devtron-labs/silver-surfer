@@ -3,7 +3,7 @@
 ## Motivation
 
 Currently there is no easy way to upgrade kubernetes objects in case of kubernetes upgrade. There are some tools
-which are available for this purpose, but we found then inadequate for migration requirements.
+which are available for this purpose, but we found them inadequate for migration requirements.
 
 `kubedd` is a tool to check issues in migration of kubernetes yaml objects from one kubernetes version to another. 
 
@@ -21,7 +21,7 @@ version.
 ## Getting Started
 
 #### Quick Installation
-Just with few commands, its ready to serve your cluster.
+Just with few commands, it's ready to serve your cluster.
 
 ```bash
 git clone https://github.com/devtron-labs/silver-surfer.git
@@ -34,7 +34,7 @@ make
 It's done. A `bin` directory might have created with the binary ready to use `./kubedd` command.
 
 #### Running Within Container
-You can also use the Dockerfile present to run command within a container and analyse the cluster running in your host machine.
+You can also use the Dockerfile present to run command within a container and analyze the cluster running in your host machine.
 
 ```bash
 docker build -t silver-surfer:v1.0 --build-arg RELEASE=goreleaser --build-arg auth=YOUR_GITHUB_TOKEN
@@ -51,7 +51,7 @@ You can download the binaries for Windows, Linux and MacOS from the [release pag
 
 ```
 ./kubedd --help
-Validates migration of Kubernestes YAML file against specific kubernetes version, It provides details of issues with the kubernetes object in case they are migrated to cluster with newer kubernetes version
+Validates migration of Kubernestes YAML file against specific kubernetes version, it provides details of issues with the kubernetes object in case they are migrated to cluster with newer kubernetes version
 
 Usage:
   kubedd <file> [file...] [flags]
@@ -73,9 +73,9 @@ Flags:
       --select-kinds strings                  A comma-separated list of kinds to be selected, if left empty all kinds are selected
       --select-namespaces strings             A comma-separated list of namespaces to be selected, if left empty all namespaces are selected
       --source-kubernetes-version string      Version of Kubernetes of the cluster on which kubernetes objects are deployed currently, ignored in case cluster is provided. In case of directory defaults to same as target-kubernetes-version.
-      --source-schema-location string         SourceSchemaLocation is the file path of kubernetes versions of the cluster on which manifests are deployed. Use this in air-gapped environment where it internet access is unavailable.
+      --source-schema-location string         SourceSchemaLocation is the file path of kubernetes versions of the cluster on which manifests are deployed. Use this in air-gapped environment where internet access is unavailable.
       --target-kubernetes-version string      Version of Kubernetes to migrate to eg 1.22, 1.21, 1.12 (default "1.22")
-      --target-schema-location string         TargetSchemaLocation is the file path of kubernetes version of the target cluster for these manifests. Use this in air-gapped environment where it internet access is unavailable.
+      --target-schema-location string         TargetSchemaLocation is the file path of kubernetes version of the target cluster for these manifests. Use this in air-gapped environment where internet access is unavailable.
       --version                               version for kubedd
 
 
@@ -91,7 +91,7 @@ It categorises kubernetes objects based on change in ApiVersion. Categories are
 
 Within each category it identifies migration path to newer ApiVersion, possible paths are
 1. It cannot be migrated as there are no common ApiVersions between source and target kubernetes version
-2. It can be migrated but has some issues which needs to be resolved
+2. It can be migrated but has some issues which need to be resolved
 3. It can be migrated with just ApiVersion change
 
 This activity is performed for both current and new ApiVersion.
@@ -99,7 +99,7 @@ This activity is performed for both current and new ApiVersion.
 ## Other Similar Tools
 
 1. [kubeval](https://github.com/instrumenta/kubeval) - most popular, only validates against the given kubernetes version, doesn't provide migration path
-2. [kube-no-trouble](https://github.com/doitintl/kube-no-trouble) - provides information about removed and deprecated api but doesnt validate schema
+2. [kube-no-trouble](https://github.com/doitintl/kube-no-trouble) - provides information about removed and deprecated api but doesn't validate schema
 3. [kubepug](https://github.com/rikatz/kubepug) - provides information based on deprecation comments in the schema, doesn't provide information
 
 
