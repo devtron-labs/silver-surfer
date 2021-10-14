@@ -96,6 +96,10 @@ Within each category it identifies migration path to newer ApiVersion, possible 
 
 This activity is performed for both current and new ApiVersion.
 
+## Contribute
+
+Check out our [contributing guidelines](CONTRIBUTING.md). We deeply appreciate your contributions.
+
 ## Other Similar Tools
 
 1. [kubeval](https://github.com/instrumenta/kubeval) - most popular, only validates against the given kubernetes version, doesn't provide migration path
