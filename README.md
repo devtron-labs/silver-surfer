@@ -1,11 +1,11 @@
-# Kubedd
+# Silver Surfer
 
 ## Motivation
 
 Currently there is no easy way to upgrade kubernetes objects in case of kubernetes upgrade. There are some tools
 which are available for this purpose, but we found then inadequate for migration requirements.
 
-`kubedd` is a tool to check issues in migration of kubernetes yaml objects from one kubernetes version to another. 
+`Silver Surfer` is a tool to check issues in migration of kubernetes yaml objects from one kubernetes version to another. 
 
 It uses openapi spec provided by the kubernetes with releases, for eg. in case of target kubernetes version 1.22 openapi spec for [1.22](https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.22/api/openapi-spec/swagger.json),
  to validate the kubernetes objects for depreciation or non-conformity with openapi spec.
@@ -95,6 +95,10 @@ Within each category it identifies migration path to newer ApiVersion, possible 
 3. It can be migrated with just ApiVersion change
 
 This activity is performed for both current and new ApiVersion.
+
+## Contribute
+
+Check out our [contributing guidelines](CONTRIBUTING.md). We deeply appreciate your contributions.
 
 ## Other Similar Tools
 
