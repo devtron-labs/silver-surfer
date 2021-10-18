@@ -2,26 +2,26 @@
 
 ## Motivation
 
-Currently there is no easy way to upgrade kubernetes objects in case of kubernetes upgrade. There are some tools
+Currently, there is no easy way to upgrade Kubernetes objects in the case of a Kubernetes upgrade. There are some tools
 which are available for this purpose, but we found them inadequate for migration requirements.
 
-`kubedd` is a tool to check issues in migration of kubernetes yaml objects from one kubernetes version to another. 
+`kubedd` is a tool to check issues in migration of Kubernetes yaml objects from one Kubernetes version to another. 
 
 It uses openapi spec provided by the kubernetes with releases, for eg. in case of target kubernetes version 1.22 openapi spec for [1.22](https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.22/api/openapi-spec/swagger.json),
  to validate the kubernetes objects for depreciation or non-conformity with openapi spec.
 
 Supported input formats
 1. Directory containing files to be validated
-2. Read kubernetes objects directly from cluster.Uses `kubectl.kubernetes.io/last-applied-configuration` to get
+2. Read Kubernetes objects directly from cluster.Uses `kubectl.kubernetes.io/last-applied-configuration` to get
    last applied configuration and in its absence uses the manifest itself. 
  
-It provides details of issues with the kubernetes object in case they are migrated to cluster with newer kubernetes
+It provides details of issues with the Kubernetes object in case the event they are migrated to cluster with a newer Kubernetes
 version.
 
 ## Getting Started
 
 #### Quick Installation
-Just with few commands, it's ready to serve your cluster.
+With few commands, it's ready to serve your cluster.
 
 ```bash
 git clone https://github.com/devtron-labs/silver-surfer.git
@@ -34,14 +34,14 @@ make
 It's done. A `bin` directory might have created with the binary ready to use `./kubedd` command.
 
 #### Running Within Container
-You can also use the Dockerfile present to run command within a container and analyze the cluster running in your host machine.
+You can also use the Dockerfile to run a command within a container, and analyze the cluster running in your host machine.
 
 ```bash
 docker build -t silver-surfer:v1.0 --build-arg RELEASE=goreleaser --build-arg auth=YOUR_GITHUB_TOKEN
 docker run -v /host/path-to/.kube-dir/:/opt/.kube --privileged --net=host --name kubedd silver-surfer:v1.0 --kubeconfig /opt/.kube/config
 ```
 #### Using Binaries
-You can download the binaries for Windows, Linux and MacOS from the [release page](https://github.com/devtron-labs/silver-surfer/releases) on this repository.
+You can download the binaries for Windows, Linux, and MacOS from the [release page](https://github.com/devtron-labs/silver-surfer/releases) on this repository.
 
 ## Usage
 
@@ -51,7 +51,7 @@ You can download the binaries for Windows, Linux and MacOS from the [release pag
 
 ```
 ./kubedd --help
-Validates migration of Kubernestes YAML file against specific kubernetes version, it provides details of issues with the kubernetes object in case they are migrated to cluster with newer kubernetes version
+Validates migration of Kubernestes YAML file against a specific Kubernetes version. It provides details of issues with the Kubernetes object in the event they are migrated to cluster with a newer kubernetes version.
 
 Usage:
   kubedd <file> [file...] [flags]
@@ -83,14 +83,14 @@ Flags:
 
 ## Output
 
-It categorises kubernetes objects based on change in ApiVersion. Categories are
+Kubbed categorises Kubernetes objects based on change in ApiVersion. Categories are:
 1. Removed ApiVersion
 2. Deprecated ApiVersion
 3. Newer ApiVersion
 4. Unchanged ApiVersion
 
-Within each category it identifies migration path to newer ApiVersion, possible paths are
-1. It cannot be migrated as there are no common ApiVersions between source and target kubernetes version
+Within each category, Kubbed identifies migration path to newer ApiVersion. Possible paths are:
+1. It cannot be migrated as there are no common ApiVersions between source and target Kubernetes version
 2. It can be migrated but has some issues which need to be resolved
 3. It can be migrated with just ApiVersion change
 
@@ -102,8 +102,8 @@ Check out our [contributing guidelines](CONTRIBUTING.md). We deeply appreciate y
 
 ## Other Similar Tools
 
-1. [kubeval](https://github.com/instrumenta/kubeval) - most popular, only validates against the given kubernetes version, doesn't provide migration path
-2. [kube-no-trouble](https://github.com/doitintl/kube-no-trouble) - provides information about removed and deprecated api but doesn't validate schema
-3. [kubepug](https://github.com/rikatz/kubepug) - provides information based on deprecation comments in the schema, doesn't provide information
+1. [kubeval](https://github.com/instrumenta/kubeval) - most popular. Only validates against the given Kubernetes version, but doesn't provide migration path
+2. [kube-no-trouble](https://github.com/doitintl/kube-no-trouble) - provides information about removed and deprecated API, but doesn't validate schema
+3. [kubepug](https://github.com/rikatz/kubepug) - provides information based on deprecation comments in the schema, but doesn't provide information
 
 
