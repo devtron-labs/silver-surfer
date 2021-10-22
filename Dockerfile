@@ -6,7 +6,8 @@ RUN apk add --update make
 RUN mkdir /silver-surfer
 WORKDIR /silver-surfer
 ADD . /silver-surfer/
-ENV GITHUB_TOKEN
+ARG AUTH_TOKEN
+ENV GITHUB_TOKEN=${AUTH_TOKEN}
 ARG RELEASE
 RUN if [ "$RELEASE" = "goreleaser" ]; then echo `make release`; fi
 RUN GOOS=linux make
