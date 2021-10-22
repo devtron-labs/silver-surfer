@@ -7,6 +7,7 @@ RUN mkdir /silver-surfer
 WORKDIR /silver-surfer
 ADD . /silver-surfer/
 ARG AUTH_TOKEN
+RUN test -n "$AUTH_TOKEN"
 ENV GITHUB_TOKEN=${AUTH_TOKEN}
 ARG RELEASE
 RUN if [ "$RELEASE" = "goreleaser" ]; then echo `make release`; fi
