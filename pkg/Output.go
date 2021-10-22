@@ -64,26 +64,27 @@ func validOutputs() []string {
 	}
 }
 
-func GetOutputManager(outFmt string) OutputManager {
+func GetOutputManager(outFmt string, noColor bool) OutputManager {
 	switch outFmt {
 	case outputSTD:
-		return newSTDOutputManager()
+		return newSTDOutputManager(noColor)
 	case outputJSON:
 		return newDefaultJSONOutputManager()
 	case outputTAP:
 		return newDefaultTAPOutputManager()
 	default:
-		return newSTDOutputManager()
+		return newSTDOutputManager(noColor)
 	}
 }
 
 // STDOutputManager reports `kubedd` results to stdout.
 type STDOutputManager struct {
+  noColor bool
 }
 
 // newSTDOutputManager instantiates a new instance of STDOutputManager.
-func newSTDOutputManager() *STDOutputManager {
-	return &STDOutputManager{}
+func newSTDOutputManager(noColor bool) *STDOutputManager {
+	return &STDOutputManager{noColor}
 }
 
 func (s *STDOutputManager) PutBulk(results []ValidationResult) error {
@@ -117,7 +118,11 @@ func (s *STDOutputManager) PutBulk(results []ValidationResult) error {
 		sort.Slice(deleted, func(i, j int) bool {
 			return len(deleted[i].ErrorsForLatest) > len(deleted[j].ErrorsForLatest)
 		})
+    color.NoColor = false
 		red := color.New(color.FgHiRed, color.Underline).SprintFunc()
+    if s.noColor {
+      color.NoColor = true
+    }
 		fmt.Printf("%s\n", red(">>>> Removed API Version's <<<<"))
 		s.SummaryTableBodyOutput(deleted)
 		fmt.Println("")
@@ -181,6 +186,7 @@ func (s *STDOutputManager) SummaryTableBodyOutput(results []ValidationResult) {
 		}
 		t.Rows = append(t.Rows, []string{result.ResourceNamespace, result.ResourceName, result.Kind, result.APIVersion, result.LatestAPIVersion, migrationStatus})
 	}
+  c.Color = !s.noColor
 	t.WriteTable(os.Stdout, c)
 }
 
@@ -228,6 +234,7 @@ func (s *STDOutputManager) DeprecationTableBodyOutput(results []ValidationResult
 			t.Rows = append(t.Rows, []string{result.ResourceNamespace, result.ResourceName, result.Kind, apiVersion, strings.Join(e.JSONPointer(), "/"), e.Reason})
 		}
 	}
+  c.Color = !s.noColor
 	t.WriteTable(os.Stdout, c)
 	fmt.Println("")
 }
@@ -278,6 +285,7 @@ func (s *STDOutputManager) ValidationErrorTableBodyOutput(results []ValidationRe
 			}
 		}
 	}
+  c.Color = !s.noColor
 	t.WriteTable(os.Stdout, c)
 	fmt.Println("")
 }
