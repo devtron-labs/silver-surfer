@@ -34,11 +34,11 @@ make
 It's done. A `bin` directory might have created with the binary ready to use `./kubedd` command.
 
 #### Running Within Container
-You can also use the Dockerfile present to run command within a container and analyze the cluster running in your host machine.
+You can also use the Dockerfile present to run command within a container and analyze the cluster running in your host machine. Switch to the project directory containing the dockerfile and run
 
 ```bash
-docker build -t silver-surfer:v1.0 --build-arg RELEASE=goreleaser --build-arg auth=YOUR_GITHUB_TOKEN
-docker run -v /host/path-to/.kube-dir/:/opt/.kube --privileged --net=host --name kubedd silver-surfer:v1.0 --kubeconfig /opt/.kube/config
+docker build . -t silver-surfer --build-arg RELEASE=goreleaser --build-arg AUTH_TOKEN=YOUR_GITHUB_TOKEN
+docker run -v /host/path-to/.kube-dir/:/opt/.kube --privileged --net=host --name kubedd silver-surfer --kubeconfig /opt/.kube/config
 ```
 #### Using Binaries
 You can download the binaries for Windows, Linux and MacOS from the [release page](https://github.com/devtron-labs/silver-surfer/releases) on this repository.
