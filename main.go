@@ -47,6 +47,7 @@ var (
 	ignoredPathPatterns       = make([]string, 0)
 	kubeconfig                = ""
 	kubecontext               = ""
+  noColor                   = false
 	// forceColor tells kubedd to use colored output even if
 	// stdout is not a TTY
 	forceColor bool
@@ -96,7 +97,9 @@ var RootCmd = &cobra.Command{
 		// Assert that colors will definitely be used if requested
 		if forceColor {
 			color.NoColor = false
-		}
+    } else if noColor {
+      color.NoColor = true
+    }
 
 		//if len(args) < 1 && len(directories) < 1 && len(kubeconfig) < 1 {
 		//	log.Error(errors.New("at least one file or one directory or kubeconfig path should be passed as argument"))
@@ -115,7 +118,7 @@ var RootCmd = &cobra.Command{
 
 func processFiles(args []string) bool {
 	success := true
-	outputManager := pkg.GetOutputManager(config.OutputFormat)
+	outputManager := pkg.GetOutputManager(config.OutputFormat, noColor)
 	files, err := aggregateFiles(args)
 	if err != nil {
 		log.Error(err)
@@ -163,7 +166,7 @@ func processFiles(args []string) bool {
 
 func processCluster() bool {
 	success := true
-	outputManager := pkg.GetOutputManager(config.OutputFormat)
+	outputManager := pkg.GetOutputManager(config.OutputFormat, noColor)
 	cluster := pkg.NewCluster(kubeconfig, kubecontext)
 	results, err := kubedd.ValidateCluster(cluster, config)
 	if err != nil {
@@ -269,6 +272,7 @@ func init() {
 	RootCmd.Use = fmt.Sprintf("%s <file> [file...]", rootCmdName)
 	pkg.AddKubeaddFlags(RootCmd, config)
 	RootCmd.Flags().BoolVarP(&forceColor, "force-color", "", false, "Force colored output even if stdout is not a TTY")
+  RootCmd.Flags().BoolVarP(&noColor, "no-color", "", false, "Display results without color")
 	RootCmd.SetVersionTemplate(`{{.Version}}`)
 	RootCmd.Flags().StringSliceVarP(&directories, "directories", "d", []string{}, "A comma-separated list of directories to recursively search for YAML documents")
 	RootCmd.Flags().StringSliceVarP(&ignoredPathPatterns, "ignored-path-patterns", "i", []string{}, "A comma-separated list of regular expressions specifying paths to ignore")

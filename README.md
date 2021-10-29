@@ -70,6 +70,7 @@ Flags:
       --insecure-skip-tls-verify              If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure
       --kubeconfig string                     Path of kubeconfig file of cluster to be scanned
       --kubecontext string                    Kubecontext to be selected
+      --no-color                              Display results without color
       --select-kinds strings                  A comma-separated list of kinds to be selected, if left empty all kinds are selected
       --select-namespaces strings             A comma-separated list of namespaces to be selected, if left empty all namespaces are selected
       --source-kubernetes-version string      Version of Kubernetes of the cluster on which kubernetes objects are deployed currently, ignored in case cluster is provided. In case of directory defaults to same as target-kubernetes-version.
