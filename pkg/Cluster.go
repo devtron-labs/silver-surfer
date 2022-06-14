@@ -86,7 +86,7 @@ func (c *Cluster) FetchK8sObjects(gvks []schema.GroupVersionKind, conf *Config) 
 		resources = append(resources, gvr.Resource)
 	}
 	for _, resource := range resources {
-		if strings.Contains(resource.Resource, "lists") ||  strings.Contains(resource.Resource, "reviews") || strings.EqualFold(resource.Resource, "bindings") {
+		if strings.Contains(resource.Resource, "lists") || strings.Contains(resource.Resource, "reviews") || strings.EqualFold(resource.Resource, "bindings") {
 			continue
 		}
 		resInf := c.clientset.Resource(resource)

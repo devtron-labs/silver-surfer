@@ -53,7 +53,7 @@ const (
 
 var (
 	hiWhite = color.New(color.FgWhite, color.Underline).SprintFunc()
-	green = color.New(color.FgHiGreen, color.Underline).SprintFunc()
+	green   = color.New(color.FgHiGreen, color.Underline).SprintFunc()
 )
 
 func validOutputs() []string {
@@ -79,7 +79,7 @@ func GetOutputManager(outFmt string, noColor bool) OutputManager {
 
 // STDOutputManager reports `kubedd` results to stdout.
 type STDOutputManager struct {
-  noColor bool
+	noColor bool
 }
 
 // newSTDOutputManager instantiates a new instance of STDOutputManager.
@@ -99,7 +99,7 @@ func (s *STDOutputManager) PutBulk(results []ValidationResult) error {
 	for _, result := range results {
 		if len(result.Kind) == 0 {
 			continue
-		}else if result.Deleted {
+		} else if result.Deleted {
 			deleted = append(deleted, result)
 		} else if result.Deprecated && len(result.LatestAPIVersion) > 0 {
 			deprecated = append(deprecated, result)
@@ -118,11 +118,11 @@ func (s *STDOutputManager) PutBulk(results []ValidationResult) error {
 		sort.Slice(deleted, func(i, j int) bool {
 			return len(deleted[i].ErrorsForLatest) > len(deleted[j].ErrorsForLatest)
 		})
-    color.NoColor = false
+		color.NoColor = false
 		red := color.New(color.FgHiRed, color.Underline).SprintFunc()
-    if s.noColor {
-      color.NoColor = true
-    }
+		if s.noColor {
+			color.NoColor = true
+		}
 		fmt.Printf("%s\n", red(">>>> Removed API Version's <<<<"))
 		s.SummaryTableBodyOutput(deleted)
 		fmt.Println("")
@@ -186,7 +186,7 @@ func (s *STDOutputManager) SummaryTableBodyOutput(results []ValidationResult) {
 		}
 		t.Rows = append(t.Rows, []string{result.ResourceNamespace, result.ResourceName, result.Kind, result.APIVersion, result.LatestAPIVersion, migrationStatus})
 	}
-  c.Color = !s.noColor
+	c.Color = !s.noColor
 	t.WriteTable(os.Stdout, c)
 }
 
@@ -210,7 +210,7 @@ func (s *STDOutputManager) DeprecationTableBodyOutput(results []ValidationResult
 		return
 	}
 	if !currentVersion {
-		fmt.Println(hiWhite( "Deprecated fields against latest api version, recommended to resolve them before migration"))
+		fmt.Println(hiWhite("Deprecated fields against latest api version, recommended to resolve them before migration"))
 	} else {
 		fmt.Println(hiWhite("Deprecated fields against current api version, recommended to resolve them"))
 	}
@@ -234,7 +234,7 @@ func (s *STDOutputManager) DeprecationTableBodyOutput(results []ValidationResult
 			t.Rows = append(t.Rows, []string{result.ResourceNamespace, result.ResourceName, result.Kind, apiVersion, strings.Join(e.JSONPointer(), "/"), e.Reason})
 		}
 	}
-  c.Color = !s.noColor
+	c.Color = !s.noColor
 	t.WriteTable(os.Stdout, c)
 	fmt.Println("")
 }
@@ -285,7 +285,7 @@ func (s *STDOutputManager) ValidationErrorTableBodyOutput(results []ValidationRe
 			}
 		}
 	}
-  c.Color = !s.noColor
+	c.Color = !s.noColor
 	t.WriteTable(os.Stdout, c)
 	fmt.Println("")
 }

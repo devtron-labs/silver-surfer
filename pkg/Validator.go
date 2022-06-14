@@ -28,8 +28,6 @@ import (
 	"strings"
 )
 
-
-
 type kubeSpec struct {
 	*openapi3.T
 	kindInfoMap map[string][]*KindInfo
@@ -282,7 +280,7 @@ func (ks *kubeSpec) getKeyForGVFromToken(token string) (string, error) {
 }
 
 func (ks *kubeSpec) schemaLookup(token string) (*openapi3.Schema, error) {
-	for ; ; {
+	for {
 		if strings.Index(token, "/") > 0 {
 			parts := strings.Split(token, "/")
 			token = parts[len(parts)-1]

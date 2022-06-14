@@ -54,7 +54,7 @@ type Parser interface {
 }
 
 type KubeChecker interface {
-	IsApiVersionSupported(releaseVersion, apiVersion, kind string)  bool
+	IsApiVersionSupported(releaseVersion, apiVersion, kind string) bool
 	Parser
 	Validator
 }
