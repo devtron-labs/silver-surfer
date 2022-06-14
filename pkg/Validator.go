@@ -20,12 +20,13 @@ package pkg
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
+
 	"github.com/devtron-labs/silver-surfer/pkg/log"
 	"github.com/getkin/kin-openapi/openapi3"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/yaml"
-	"sort"
-	"strings"
 )
 
 type kubeSpec struct {
@@ -74,7 +75,8 @@ func (ks *kubeSpec) ValidateObject(object map[string]interface{}) (ValidationRes
 		var ves []*openapi3.SchemaError
 		var des []*SchemaError
 		validationError, deprecated := ks.applySchema(object, original)
-		if validationError != nil && len(validationError) > 0 {
+		// validationError can't be nil because it's not a pointer
+		if len(validationError) > 0 {
 			errs := []error(validationError)
 			for _, e := range errs {
 				if se, ok := e.(*openapi3.SchemaError); ok {
@@ -94,7 +96,8 @@ func (ks *kubeSpec) ValidateObject(object map[string]interface{}) (ValidationRes
 		var ves []*openapi3.SchemaError
 		var des []*SchemaError
 		validationError, _ := ks.applySchema(object, latest)
-		if validationError != nil && len(validationError) > 0 {
+		// validationError can't be nil because it's not a pointer
+		if len(validationError) > 0 {
 			errs := []error(validationError)
 			for _, e := range errs {
 				if se, ok := e.(*openapi3.SchemaError); ok {

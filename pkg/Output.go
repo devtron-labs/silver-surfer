@@ -23,16 +23,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mgutz/ansi"
 	"sort"
 	"strings"
 
+	"github.com/fatih/color"
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mgutz/ansi"
+
 	//"github.com/olekukonko/tablewriter"
-	"github.com/tomlazar/table"
 	"log"
 	"os"
+
+	"github.com/tomlazar/table"
 )
 
 // OutputManager controls how results of the `kubedd` evaluation will be recorded
@@ -56,13 +58,13 @@ var (
 	green   = color.New(color.FgHiGreen, color.Underline).SprintFunc()
 )
 
-func validOutputs() []string {
-	return []string{
-		outputSTD,
-		outputJSON,
-		outputTAP,
-	}
-}
+// func validOutputs() []string {
+// 	return []string{
+// 		outputSTD,
+// 		outputJSON,
+// 		outputTAP,
+// 	}
+// }
 
 func GetOutputManager(outFmt string, noColor bool) OutputManager {
 	switch outFmt {
@@ -182,12 +184,14 @@ func (s *STDOutputManager) SummaryTableBodyOutput(results []ValidationResult) {
 			migrationStatus = fmt.Sprintf("%s%d%s%s%s", "\033[31m", len(result.ErrorsForLatest), " issue(s):", "\033[97m", " fix issues before migration")
 		}
 		if result.IsVersionSupported == 2 {
-			migrationStatus = fmt.Sprintf("%s%s", "\033[31m", fmt.Sprintf("Alert! cannot migrate kubernetes version"))
+			migrationStatus = fmt.Sprintf("%sAlert! cannot migrate kubernetes version", "\033[31m")
 		}
 		t.Rows = append(t.Rows, []string{result.ResourceNamespace, result.ResourceName, result.Kind, result.APIVersion, result.LatestAPIVersion, migrationStatus})
 	}
 	c.Color = !s.noColor
-	t.WriteTable(os.Stdout, c)
+	if err := t.WriteTable(os.Stdout, c); err != nil {
+		panic(err)
+	}
 }
 
 func (s *STDOutputManager) DeprecationTableBodyOutput(results []ValidationResult, currentVersion bool) {
@@ -235,7 +239,9 @@ func (s *STDOutputManager) DeprecationTableBodyOutput(results []ValidationResult
 		}
 	}
 	c.Color = !s.noColor
-	t.WriteTable(os.Stdout, c)
+	if err := t.WriteTable(os.Stdout, c); err != nil {
+		panic(err)
+	}
 	fmt.Println("")
 }
 
@@ -286,7 +292,9 @@ func (s *STDOutputManager) ValidationErrorTableBodyOutput(results []ValidationRe
 		}
 	}
 	c.Color = !s.noColor
-	t.WriteTable(os.Stdout, c)
+	if err := t.WriteTable(os.Stdout, c); err != nil {
+		panic(err)
+	}
 	fmt.Println("")
 }
 
@@ -439,7 +447,7 @@ func (j *tapOutputManager) Flush() error {
 				total = total + 1
 			}
 		}
-		j.logger.Print(fmt.Sprintf("1..%d", total))
+		j.logger.Printf("1..%d", total)
 		count := 0
 		for _, r := range j.data {
 			count = count + 1

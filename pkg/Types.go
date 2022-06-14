@@ -23,9 +23,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/xeipuuv/gojsonschema"
-	"strconv"
 )
 
 var SchemaErrorDetailsDisabled = true
@@ -187,9 +188,11 @@ func RegisterArrayUniqueItemsChecker(fn SliceUniqueItemsChecker) {
 	sliceUniqueItemsChecker = fn
 }
 
-func unsupportedFormat(format string) error {
-	return fmt.Errorf("unsupported 'format' value %q", format)
-}
+// Unused Function
+//
+// func unsupportedFormat(format string) error {
+// 	return fmt.Errorf("unsupported 'format' value %q", format)
+// }
 
 /*
 ApiVersion/Kind

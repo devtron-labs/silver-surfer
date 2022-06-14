@@ -21,14 +21,15 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+
 	"github.com/getkin/kin-openapi/openapi2"
 	"github.com/getkin/kin-openapi/openapi2conv"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/tidwall/sjson"
-	"io"
-	"io/ioutil"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"net/http"
 )
 
 const (
@@ -67,10 +68,12 @@ func NewKubeCheckerImpl() *kubeCheckerImpl {
 	return &kubeCheckerImpl{versionMap: map[string]*kubeSpec{}}
 }
 
-func (k *kubeCheckerImpl) hasReleaseVersion(releaseVersion string) bool {
-	_, ok := k.versionMap[releaseVersion]
-	return ok
-}
+// Unused Function
+//
+// func (k *kubeCheckerImpl) hasReleaseVersion(releaseVersion string) bool {
+// 	_, ok := k.versionMap[releaseVersion]
+// 	return ok
+// }
 
 func (k *kubeCheckerImpl) LoadFromPath(releaseVersion string, filePath string, force bool) error {
 	if _, ok := k.versionMap[releaseVersion]; ok && !force {
