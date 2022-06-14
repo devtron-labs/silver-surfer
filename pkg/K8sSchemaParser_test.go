@@ -213,7 +213,7 @@ const redis_svc = `
   }
 }`
 
-const cm =`
+const cm = `
 {
   "apiVersion": "v1",
   "kind": "ConfigMap",
@@ -269,7 +269,7 @@ const secret_stringdata = `
 func TestDownloadFile(t *testing.T) {
 	type args struct {
 		releaseVersion string
-		object string
+		object         string
 	}
 	tests := []struct {
 		name    string
@@ -277,53 +277,53 @@ func TestDownloadFile(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Positive - Test deployment",
-			args: args{releaseVersion: "1.16", object: correct_deployment},
+			name:    "Positive - Test deployment",
+			args:    args{releaseVersion: "1.16", object: correct_deployment},
 			wantErr: false,
 		},
 		{
-			name: "Negative - Test deployment",
-			args: args{releaseVersion: "1.16", object: deployment},
+			name:    "Negative - Test deployment",
+			args:    args{releaseVersion: "1.16", object: deployment},
 			wantErr: true,
 		},
 		{
-			name: "Positive - Test Service",
-			args: args{releaseVersion: "1.20", object: svc},
+			name:    "Positive - Test Service",
+			args:    args{releaseVersion: "1.20", object: svc},
 			wantErr: false,
 		},
 		{
-			name: "Negative - Test Service",
-			args: args{releaseVersion: "1.20", object: redis_svc},
+			name:    "Negative - Test Service",
+			args:    args{releaseVersion: "1.20", object: redis_svc},
 			wantErr: true,
 		},
 		{
-			name: "Positive - Test Service",
-			args: args{releaseVersion: "1.20", object: svc_string_port},
+			name:    "Positive - Test Service",
+			args:    args{releaseVersion: "1.20", object: svc_string_port},
 			wantErr: false,
 		},
 		{
-			name: "Positive - Test deployment extension, handled via apps/v1",
-			args: args{releaseVersion: "1.18", object: extension_deployment},
+			name:    "Positive - Test deployment extension, handled via apps/v1",
+			args:    args{releaseVersion: "1.18", object: extension_deployment},
 			wantErr: true,
 		},
 		{
-			name: "Positive - Test deployment extension",
-			args: args{releaseVersion: "1.16", object: extension_deployment},
+			name:    "Positive - Test deployment extension",
+			args:    args{releaseVersion: "1.16", object: extension_deployment},
 			wantErr: true,
 		},
 		{
-			name: "Positive - Test configmap",
-			args: args{releaseVersion: "1.17", object: cm},
+			name:    "Positive - Test configmap",
+			args:    args{releaseVersion: "1.17", object: cm},
 			wantErr: false,
 		},
 		{
-			name: "Positive - Test secret",
-			args: args{releaseVersion: "1.17", object: secret},
+			name:    "Positive - Test secret",
+			args:    args{releaseVersion: "1.17", object: secret},
 			wantErr: false,
 		},
 		{
-			name: "Positive - Test secret stringdata",
-			args: args{releaseVersion: "1.17", object: secret_stringdata},
+			name:    "Positive - Test secret stringdata",
+			args:    args{releaseVersion: "1.17", object: secret_stringdata},
 			wantErr: false,
 		},
 	}
@@ -360,7 +360,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v1beta1",
 				second: "v1",
 			},
-			want: true,
+			want:    true,
 			wantErr: false,
 		},
 		{
@@ -369,7 +369,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v2beta1",
 				second: "v1",
 			},
-			want: false,
+			want:    false,
 			wantErr: false,
 		},
 		{
@@ -378,7 +378,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v1beta1",
 				second: "v1alpha1",
 			},
-			want: false,
+			want:    false,
 			wantErr: false,
 		},
 		{
@@ -387,7 +387,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v1alpha1",
 				second: "v1beta1",
 			},
-			want: true,
+			want:    true,
 			wantErr: false,
 		},
 		{
@@ -396,7 +396,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v1beta1",
 				second: "v1beta2",
 			},
-			want: true,
+			want:    true,
 			wantErr: false,
 		},
 		{
@@ -405,7 +405,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v1beta2",
 				second: "v1beta1",
 			},
-			want: false,
+			want:    false,
 			wantErr: false,
 		},
 		{
@@ -414,7 +414,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v2",
 				second: "v1",
 			},
-			want: false,
+			want:    false,
 			wantErr: false,
 		},
 	}

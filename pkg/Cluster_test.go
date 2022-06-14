@@ -11,7 +11,7 @@ func TestCluster_ServerVersion(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "cluster version",
+			name:    "cluster version",
 			wantErr: false,
 		},
 	}

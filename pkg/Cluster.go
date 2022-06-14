@@ -18,13 +18,13 @@ import (
 )
 
 type Cluster struct {
-	resources         []schema.GroupVersionResource
-	disco             discovery.DiscoveryInterface
-	restConfig        *rest.Config
-	kubernetesVersion string
-	clientset         dynamic.Interface
-	Name              string
-	Version           string
+	// resources         []schema.GroupVersionResource # This value is never used
+	disco      discovery.DiscoveryInterface
+	restConfig *rest.Config
+	// kubernetesVersion string # This value is never used
+	clientset dynamic.Interface
+	Name      string
+	Version   string
 }
 
 func NewCluster(kubeconfig string, kubecontext string) *Cluster {
@@ -86,7 +86,7 @@ func (c *Cluster) FetchK8sObjects(gvks []schema.GroupVersionKind, conf *Config) 
 		resources = append(resources, gvr.Resource)
 	}
 	for _, resource := range resources {
-		if strings.Contains(resource.Resource, "lists") ||  strings.Contains(resource.Resource, "reviews") || strings.EqualFold(resource.Resource, "bindings") {
+		if strings.Contains(resource.Resource, "lists") || strings.Contains(resource.Resource, "reviews") || strings.EqualFold(resource.Resource, "bindings") {
 			continue
 		}
 		resInf := c.clientset.Resource(resource)

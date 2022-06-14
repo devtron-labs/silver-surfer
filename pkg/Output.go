@@ -23,16 +23,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mgutz/ansi"
 	"sort"
 	"strings"
 
+	"github.com/fatih/color"
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mgutz/ansi"
+
 	//"github.com/olekukonko/tablewriter"
-	"github.com/tomlazar/table"
 	"log"
 	"os"
+
+	"github.com/tomlazar/table"
 )
 
 // OutputManager controls how results of the `kubedd` evaluation will be recorded
@@ -53,16 +55,16 @@ const (
 
 var (
 	hiWhite = color.New(color.FgWhite, color.Underline).SprintFunc()
-	green = color.New(color.FgHiGreen, color.Underline).SprintFunc()
+	green   = color.New(color.FgHiGreen, color.Underline).SprintFunc()
 )
 
-func validOutputs() []string {
-	return []string{
-		outputSTD,
-		outputJSON,
-		outputTAP,
-	}
-}
+// func validOutputs() []string {
+// 	return []string{
+// 		outputSTD,
+// 		outputJSON,
+// 		outputTAP,
+// 	}
+// }
 
 func GetOutputManager(outFmt string, noColor bool) OutputManager {
 	switch outFmt {
@@ -79,7 +81,7 @@ func GetOutputManager(outFmt string, noColor bool) OutputManager {
 
 // STDOutputManager reports `kubedd` results to stdout.
 type STDOutputManager struct {
-  noColor bool
+	noColor bool
 }
 
 // newSTDOutputManager instantiates a new instance of STDOutputManager.
@@ -99,7 +101,7 @@ func (s *STDOutputManager) PutBulk(results []ValidationResult) error {
 	for _, result := range results {
 		if len(result.Kind) == 0 {
 			continue
-		}else if result.Deleted {
+		} else if result.Deleted {
 			deleted = append(deleted, result)
 		} else if result.Deprecated && len(result.LatestAPIVersion) > 0 {
 			deprecated = append(deprecated, result)
@@ -118,11 +120,11 @@ func (s *STDOutputManager) PutBulk(results []ValidationResult) error {
 		sort.Slice(deleted, func(i, j int) bool {
 			return len(deleted[i].ErrorsForLatest) > len(deleted[j].ErrorsForLatest)
 		})
-    color.NoColor = false
+		color.NoColor = false
 		red := color.New(color.FgHiRed, color.Underline).SprintFunc()
-    if s.noColor {
-      color.NoColor = true
-    }
+		if s.noColor {
+			color.NoColor = true
+		}
 		fmt.Printf("%s\n", red(">>>> Removed API Version's <<<<"))
 		s.SummaryTableBodyOutput(deleted)
 		fmt.Println("")
@@ -182,12 +184,14 @@ func (s *STDOutputManager) SummaryTableBodyOutput(results []ValidationResult) {
 			migrationStatus = fmt.Sprintf("%s%d%s%s%s", "\033[31m", len(result.ErrorsForLatest), " issue(s):", "\033[97m", " fix issues before migration")
 		}
 		if result.IsVersionSupported == 2 {
-			migrationStatus = fmt.Sprintf("%s%s", "\033[31m", fmt.Sprintf("Alert! cannot migrate kubernetes version"))
+			migrationStatus = fmt.Sprintf("%sAlert! cannot migrate kubernetes version", "\033[31m")
 		}
 		t.Rows = append(t.Rows, []string{result.ResourceNamespace, result.ResourceName, result.Kind, result.APIVersion, result.LatestAPIVersion, migrationStatus})
 	}
-  c.Color = !s.noColor
-	t.WriteTable(os.Stdout, c)
+	c.Color = !s.noColor
+	if err := t.WriteTable(os.Stdout, c); err != nil {
+		panic(err)
+	}
 }
 
 func (s *STDOutputManager) DeprecationTableBodyOutput(results []ValidationResult, currentVersion bool) {
@@ -210,7 +214,7 @@ func (s *STDOutputManager) DeprecationTableBodyOutput(results []ValidationResult
 		return
 	}
 	if !currentVersion {
-		fmt.Println(hiWhite( "Deprecated fields against latest api version, recommended to resolve them before migration"))
+		fmt.Println(hiWhite("Deprecated fields against latest api version, recommended to resolve them before migration"))
 	} else {
 		fmt.Println(hiWhite("Deprecated fields against current api version, recommended to resolve them"))
 	}
@@ -234,8 +238,10 @@ func (s *STDOutputManager) DeprecationTableBodyOutput(results []ValidationResult
 			t.Rows = append(t.Rows, []string{result.ResourceNamespace, result.ResourceName, result.Kind, apiVersion, strings.Join(e.JSONPointer(), "/"), e.Reason})
 		}
 	}
-  c.Color = !s.noColor
-	t.WriteTable(os.Stdout, c)
+	c.Color = !s.noColor
+	if err := t.WriteTable(os.Stdout, c); err != nil {
+		panic(err)
+	}
 	fmt.Println("")
 }
 
@@ -285,8 +291,10 @@ func (s *STDOutputManager) ValidationErrorTableBodyOutput(results []ValidationRe
 			}
 		}
 	}
-  c.Color = !s.noColor
-	t.WriteTable(os.Stdout, c)
+	c.Color = !s.noColor
+	if err := t.WriteTable(os.Stdout, c); err != nil {
+		panic(err)
+	}
 	fmt.Println("")
 }
 
@@ -439,7 +447,7 @@ func (j *tapOutputManager) Flush() error {
 				total = total + 1
 			}
 		}
-		j.logger.Print(fmt.Sprintf("1..%d", total))
+		j.logger.Printf("1..%d", total)
 		count := 0
 		for _, r := range j.data {
 			count = count + 1

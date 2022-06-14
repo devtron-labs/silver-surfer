@@ -1,3 +1,10 @@
+# Jetrbrains stuff
 .idea/
+
+# VSCode stuff
+.vscode/
+.DS_Store
+
 bin/
 dist/
+vendor/

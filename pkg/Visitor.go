@@ -18,8 +18,9 @@
 package pkg
 
 import (
-	"github.com/getkin/kin-openapi/openapi3"
 	"strings"
+
+	"github.com/getkin/kin-openapi/openapi3"
 )
 
 type SchemaSettings struct {
@@ -34,11 +35,11 @@ func visitJSON(schema *openapi3.Schema, value interface{}, settings SchemaSettin
 	var me openapi3.MultiError
 	switch value := value.(type) {
 	case nil, bool, float64, string, int64:
-		if strings.Index(strings.ToLower(schema.Description), "deprecated") >= 0 {
+		if strings.Contains(strings.ToLower(schema.Description), "deprecated") {
 			schemaError := &SchemaError{
-				Value:       "",
-				Schema:      schema,
-				Reason:      schema.Description,
+				Value:  "",
+				Schema: schema,
+				Reason: schema.Description,
 			}
 			me = append(me, schemaError)
 		}
@@ -49,9 +50,9 @@ func visitJSON(schema *openapi3.Schema, value interface{}, settings SchemaSettin
 		return visitJSONObject(schema, value, settings)
 	default:
 		schemaError := &SchemaError{
-			Value:       value,
-			Schema:      schema,
-			Reason:      "unhandled key",
+			Value:  value,
+			Schema: schema,
+			Reason: "unhandled key",
 		}
 		me = append(me, schemaError)
 		return me
@@ -63,7 +64,9 @@ func visitJSONArray(schema *openapi3.Schema, object []interface{}, settings Sche
 	for i, obj := range object {
 		schemaError := visitJSON(schema.Items.Value, obj, settings)
 		if len(schemaError) != 0 {
-			markSchemaErrorIndex(schemaError, i)
+			if err := markSchemaErrorIndex(schemaError, i); err != nil {
+				panic(err)
+			}
 			me = append(me, schemaError...)
 		}
 	}
@@ -72,11 +75,11 @@ func visitJSONArray(schema *openapi3.Schema, object []interface{}, settings Sche
 
 func visitJSONObject(schema *openapi3.Schema, object map[string]interface{}, settings SchemaSettings) openapi3.MultiError {
 	var me openapi3.MultiError
-	if strings.Index(strings.ToLower(schema.Description), "deprecated") >= 0 {
+	if strings.Contains(strings.ToLower(schema.Description), "deprecated") {
 		schemaError := &SchemaError{
-			Value:       "",
-			Schema:      schema,
-			Reason:      schema.Description,
+			Value:  "",
+			Schema: schema,
+			Reason: schema.Description,
 		}
 		me = append(me, schemaError)
 		if !settings.MultiError {
@@ -88,7 +91,9 @@ func visitJSONObject(schema *openapi3.Schema, object map[string]interface{}, set
 			//fmt.Printf("found key %s\n", k)
 			schemaError := visitJSON(s.Value, v, settings)
 			if len(schemaError) != 0 {
-				markSchemaErrorKey(schemaError, k)
+				if err := markSchemaErrorKey(schemaError, k); err != nil {
+					panic(err)
+				}
 				me = append(me, schemaError...)
 				if !settings.MultiError {
 					return me

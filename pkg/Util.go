@@ -20,16 +20,17 @@ package pkg
 import (
 	"encoding/json"
 	"fmt"
-	kLog "github.com/devtron-labs/silver-surfer/pkg/log"
 	"math"
 	"regexp"
 	"strconv"
 	"strings"
+
+	kLog "github.com/devtron-labs/silver-surfer/pkg/log"
 )
 
 const (
-	gvFormat          = "%s/%s"
-	gvkFormat         = "%s/%s/%s"
+	gvFormat  = "%s/%s"
+	gvkFormat = "%s/%s/%s"
 )
 
 func getKeyForGV(msg json.RawMessage) (string, error) {
@@ -102,13 +103,13 @@ func compareVersion(lhs, rhs string) bool {
 }
 
 func isExtension(second string) bool {
-	return strings.Index(second, "extensions") >= 0
+	return strings.Contains(second, "extensions")
 }
 
 func isSmallerVersion(lhs, rhs string) (bool, error) {
 	var re *regexp.Regexp
 	var err error
-	re, err = regexp.Compile("v(\\d*)([^0-9]*)(\\d*)")
+	re, err = regexp.Compile(`v(\d*)([^0-9]*)(\d*)`)
 	if err != nil {
 		return false, err
 	}
@@ -202,7 +203,7 @@ func RegexMatch(s string, pattern string) bool {
 	}
 	if strings.Count(lp, "*") == 2 {
 		np := strings.ReplaceAll(lp, "*", "")
-		return strings.Contains(ls,np)
+		return strings.Contains(ls, np)
 	}
 	if strings.Index(lp, "*") == 0 {
 		np := strings.ReplaceAll(lp, "*", "")

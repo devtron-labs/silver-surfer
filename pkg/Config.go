@@ -83,22 +83,22 @@ type Config struct {
 	IgnoreKeysFromDeprecation []string
 
 	// IgnoreKeysFromValidation is the list of keys to be skipped for validation check
-	IgnoreKeysFromValidation  []string
+	IgnoreKeysFromValidation []string
 
 	// SelectNamespaces is the list of namespaces to be validated, by default all namespaces are validated
-	SelectNamespaces          []string
+	SelectNamespaces []string
 
 	// IgnoreNamespaces is the list of namespaces to be skipped for validation, by default none are skipped
-	IgnoreNamespaces          []string
+	IgnoreNamespaces []string
 
 	// SelectKinds is the list of kinds to be validated, by default all kinds are validated
-	SelectKinds               []string
+	SelectKinds []string
 
 	// IgnoreKinds is the list of kinds to be skipped for validation, by default none are skipped
-	IgnoreKinds               []string
+	IgnoreKinds []string
 
 	// IgnoreNullErrors is the flag to ignore null value errors
-	IgnoreNullErrors 		  bool
+	IgnoreNullErrors bool
 }
 
 // NewDefaultConfig creates a Config with default values
@@ -115,14 +115,14 @@ func AddKubeaddFlags(cmd *cobra.Command, config *Config) *cobra.Command {
 	//cmd.Flags().StringVarP(&config.FileName, "filename", "f", "stdin", "Filename to be displayed when testing manifests read from stdin")
 	cmd.Flags().StringVarP(&config.TargetSchemaLocation, "target-schema-location", "", "", "TargetSchemaLocation is the file path of kubernetes version of the target cluster for these manifests. Use this in air-gapped environment where it internet access is unavailable.")
 	cmd.Flags().StringVarP(&config.SourceSchemaLocation, "source-schema-location", "", "", "SourceSchemaLocation is the file path of kubernetes versions of the cluster on which manifests are deployed. Use this in air-gapped environment where it internet access is unavailable.")
-	cmd.Flags().StringVarP(&config.TargetKubernetesVersion, "target-kubernetes-version", "", "1.22", "Version of Kubernetes to migrate to eg 1.22, 1.21, 1.12")
+	cmd.Flags().StringVarP(&config.TargetKubernetesVersion, "target-kubernetes-version", "", "1.24", "Version of Kubernetes to migrate to [1.24, 1.23, 1.22, 1.21, 1.12, ...]")
 	cmd.Flags().StringVarP(&config.SourceKubernetesVersion, "source-kubernetes-version", "", "", "Version of Kubernetes of the cluster on which kubernetes objects are deployed currently, ignored in case cluster is provided. In case of directory defaults to same as target-kubernetes-version.")
 	//cmd.Flags().StringVarP(&config.OutputFormat, "output", "o", "", fmt.Sprintf("The format of the output of this script. Options are: %v", "stdOut"))
 	//cmd.Flags().BoolVar(&config.Quiet, "quiet", false, "Silences any output aside from the direct results")
 	cmd.Flags().BoolVar(&config.InsecureSkipTLSVerify, "insecure-skip-tls-verify", false, "If true, the server's certificate will not be checked for validity. This will make your HTTPS connections insecure")
 	cmd.Flags().StringSliceVarP(&config.SelectNamespaces, "select-namespaces", "", []string{}, "A comma-separated list of namespaces to be selected, if left empty all namespaces are selected")
 	cmd.Flags().StringSliceVarP(&config.IgnoreNamespaces, "ignore-namespaces", "", []string{"kube-system"}, "A comma-separated list of namespaces to be skipped")
-	cmd.Flags().StringSliceVarP(&config.IgnoreKinds, "ignore-kinds", "", []string{"event","CustomResourceDefinition"}, "A comma-separated list of kinds to be skipped")
+	cmd.Flags().StringSliceVarP(&config.IgnoreKinds, "ignore-kinds", "", []string{"event", "CustomResourceDefinition"}, "A comma-separated list of kinds to be skipped")
 	cmd.Flags().StringSliceVarP(&config.SelectKinds, "select-kinds", "", []string{}, "A comma-separated list of kinds to be selected, if left empty all kinds are selected")
 	cmd.Flags().StringSliceVarP(&config.IgnoreKeysFromDeprecation, "ignore-keys-for-deprecation", "", []string{"metadata*", "status*"}, "A comma-separated list of keys to be ignored for depreciation check")
 	cmd.Flags().StringSliceVarP(&config.IgnoreKeysFromValidation, "ignore-keys-for-validation", "", []string{"status*", "metadata*"}, "A comma-separated list of keys to be ignored for validation check")
