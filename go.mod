@@ -12,7 +12,7 @@ require (
 	github.com/spf13/cobra v0.0.0-20180820174524-ff0d02e85550
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
-	github.com/tidwall/gjson v1.8.1 // indirect
+	github.com/tidwall/gjson v1.9.3 // indirect
 	github.com/tidwall/sjson v1.1.7
 	github.com/tomlazar/table v0.1.0
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
