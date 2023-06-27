@@ -128,8 +128,13 @@ func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationRe
 			continue
 		}
 		//validationResult = isVersionSupported(validationResult, kubeC, conf)
-		validationResult = pkg.FilterValidationResults(validationResult, conf)
-		validationResults = append(validationResults, validationResult)
+		if validationResult != nil{
+			validationResult = pkg.FilterValidationResults(validationResult, conf)
+			validationResults = append(validationResults, validationResult)
+		}else{
+			fmt.Printf(annotations + " gives empty result while validating the json.")
+			continue
+		}
 	}
 
 
