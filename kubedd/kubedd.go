@@ -122,19 +122,16 @@ func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationRe
 			}
 			k8sObj = string(bt)
 		}
-		validationResult, err := kubeC.ValidateJson(k8sObj, conf.TargetKubernetesVersion)
-		if err != nil {
-			fmt.Printf("err: %v\n", err)
-			continue
-		}
-		//validationResult = isVersionSupported(validationResult, kubeC, conf)
-		if validationResult != nil{
-			validationResult = pkg.FilterValidationResults(validationResult, conf)
-			validationResults = append(validationResults, validationResult)
-		}else{
-			fmt.Printf(annotations + " gives empty result while validating the json.")
-			continue
-		}
+		if len(k8sObj) > 0 {
+		            validationResult, err := kubeC.ValidateJson(k8sObj, conf.TargetKubernetesVersion)
+		            if err != nil {
+		                fmt.Printf("err: %v\n", err)
+		                continue
+		            }
+		            //validationResult = isVersionSupported(validationResult, kubeC, conf)
+		            validationResult = pkg.FilterValidationResults(validationResult, conf)
+		            validationResults = append(validationResults, validationResult)
+	        }
 	}
 
 
