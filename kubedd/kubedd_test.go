@@ -9,8 +9,8 @@ import (
 func TestValidateCluster(t *testing.T) {
 	cluster := pkg.NewCluster("", "")
 	config := pkg.NewDefaultConfig()
-	config.SelectKinds = []string{"ComponentStatus"}
-	config.TargetKubernetesVersion = "1.21"
+	config.SelectKinds = []string{"ControllerRevision"}
+	config.TargetKubernetesVersion = "1.27"
 	//config.SelectNamespaces = []string{"prod"}
 	type args struct {
 		cluster *pkg.Cluster
