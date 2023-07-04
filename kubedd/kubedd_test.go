@@ -1,6 +1,7 @@
 package kubedd
 
 import (
+	"fmt"
 	"github.com/devtron-labs/silver-surfer/pkg"
 	"reflect"
 	"testing"
@@ -9,7 +10,8 @@ import (
 func TestValidateCluster(t *testing.T) {
 	cluster := pkg.NewCluster("", "")
 	config := pkg.NewDefaultConfig()
-	config.SelectKinds = []string{"ControllerRevision"}
+	config.SelectKinds = []string{"Deployment"}
+	config.SelectNamespaces = []string{"esrgan2k"}
 	config.TargetKubernetesVersion = "1.27"
 	//config.SelectNamespaces = []string{"prod"}
 	type args struct {
@@ -34,6 +36,11 @@ func TestValidateCluster(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ValidateCluster(tt.args.cluster, tt.args.conf)
+			for _, r := range got {
+				if r.ResourceName == "keda-operator" {
+					fmt.Printf("%+v\n", r)
+				}
+			}
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ValidateCluster() error = %v, wantErr %v", err, tt.wantErr)
 				return
