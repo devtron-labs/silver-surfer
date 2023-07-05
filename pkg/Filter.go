@@ -8,28 +8,36 @@ import (
 func FilterValidationResults(result ValidationResult, conf *Config) ValidationResult {
 	//var vr []ValidationResult
 	//for _, result := range validationResults {
-	var errorsForLatest []*openapi3.SchemaError
-	var errorsForOriginal []*openapi3.SchemaError
-	for _, schemaError := range result.ErrorsForLatest {
-		if !conf.IgnoreNullErrors || strings.TrimSpace(schemaError.Reason) != "Value is not nullable" {
-			errorsForLatest = append(errorsForLatest, schemaError)
-		}
-	}
-	result.ErrorsForLatest = errorsForLatest
-	for _, schemaError := range result.ErrorsForOriginal {
-		if !conf.IgnoreNullErrors || strings.TrimSpace(schemaError.Reason) != "Value is not nullable" {
-			errorsForOriginal = append(errorsForOriginal, schemaError)
-		}
-	}
-	result.ErrorsForOriginal = errorsForOriginal
+	result.ErrorsForLatest = filterError(result.ErrorsForLatest, conf)
+	result.ErrorsForOriginal = filterError(result.ErrorsForOriginal, conf)
 	//vr = append(vr, result)
 	//}
 	return removeIgnoredKeys(result, conf)
 }
 
+func filterError(errors []*openapi3.SchemaError, conf *Config) []*openapi3.SchemaError {
+	var filteredErrors []*openapi3.SchemaError
+	for _, schemaError := range errors {
+		penultimateValue := len(schemaError.JSONPointer()) - 2
+		requestOrLimit := len(schemaError.JSONPointer()) > 2 && (schemaError.JSONPointer()[penultimateValue] == "requests" || schemaError.JSONPointer()[penultimateValue] == "limits")
+		requestOrLimitIsNumber := false
+		if requestOrLimit {
+			switch v := schemaError.Value.(type) {
+			case string:
+				requestOrLimitIsNumber = v == "number, integer"
+			}
+		}
+		if conf.IgnoreNullErrors ||
+			(strings.TrimSpace(schemaError.Reason) == "Value is not nullable" && schemaError.Schema.Type == "array") ||
+			Contains(schemaError.Schema.Description, []string{"RawExtension*"}) || requestOrLimitIsNumber {
+			continue
+		}
+		filteredErrors = append(filteredErrors, schemaError)
+	}
+	return filteredErrors
+}
+
 func removeIgnoredKeys(result ValidationResult, conf *Config) ValidationResult {
-	//var out []ValidationResult
-	//for _, result := range results {
 	if len(result.DeprecationForOriginal) > 0 {
 		var depErr []*SchemaError
 		for _, schemaError := range result.DeprecationForOriginal {
@@ -54,9 +62,7 @@ func removeIgnoredKeys(result ValidationResult, conf *Config) ValidationResult {
 		var valErr []*openapi3.SchemaError
 		for _, schemaError := range result.ErrorsForOriginal {
 			key := strings.Join(schemaError.JSONPointer(), "/")
-			penultimateValue := len(schemaError.JSONPointer()) - 2
-			requestOrLimit := len(schemaError.JSONPointer()) > 2 && (schemaError.JSONPointer()[penultimateValue] == "requests" || schemaError.JSONPointer()[penultimateValue] == "limits")
-			if !Contains(key, conf.IgnoreKeysFromValidation) && !Contains(schemaError.Schema.Description, []string{"RawExtension*"}) && !requestOrLimit {
+			if !Contains(key, conf.IgnoreKeysFromValidation) {
 				valErr = append(valErr, schemaError)
 			}
 		}
@@ -66,15 +72,11 @@ func removeIgnoredKeys(result ValidationResult, conf *Config) ValidationResult {
 		var valErr []*openapi3.SchemaError
 		for _, schemaError := range result.ErrorsForLatest {
 			key := strings.Join(schemaError.JSONPointer(), "/")
-			penultimateValue := len(schemaError.JSONPointer()) - 2
-			requestOrLimit := len(schemaError.JSONPointer()) > 2 && (schemaError.JSONPointer()[penultimateValue] == "requests" || schemaError.JSONPointer()[penultimateValue] == "limits")
-			if !Contains(key, conf.IgnoreKeysFromValidation) && !Contains(schemaError.Schema.Description, []string{"RawExtension*"}) && !requestOrLimit {
+			if !Contains(key, conf.IgnoreKeysFromValidation) {
 				valErr = append(valErr, schemaError)
 			}
 		}
 		result.ErrorsForLatest = valErr
 	}
-	//out = append(out, result)
-	//}
 	return result
 }
