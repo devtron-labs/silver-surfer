@@ -94,7 +94,7 @@ func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationRe
 	}
 	serverVersion, err := cluster.ServerVersion()
 	if err != nil {
-		kLog.Error( err)
+		kLog.Error(err)
 		serverVersion = conf.TargetKubernetesVersion
 	}
 	resources, err := kubeC.GetKinds(serverVersion)
@@ -122,16 +122,17 @@ func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationRe
 			}
 			k8sObj = string(bt)
 		}
-		validationResult, err := kubeC.ValidateJson(k8sObj, conf.TargetKubernetesVersion)
-		if err != nil {
-			fmt.Printf("err: %v\n", err)
-			continue
+		if len(k8sObj) > 0 {
+			validationResult, err := kubeC.ValidateJson(k8sObj, conf.TargetKubernetesVersion)
+			if err != nil {
+				fmt.Printf("err: %v\n", err)
+				continue
+			}
+			//validationResult = isVersionSupported(validationResult, kubeC, conf)
+			validationResult = pkg.FilterValidationResults(validationResult, conf)
+			validationResults = append(validationResults, validationResult)
 		}
-		//validationResult = isVersionSupported(validationResult, kubeC, conf)
-		validationResult = pkg.FilterValidationResults(validationResult, conf)
-		validationResults = append(validationResults, validationResult)
 	}
-
 
 	return validationResults, nil
 }
@@ -168,4 +169,3 @@ func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationRe
 //		return result
 //	}
 //}
-

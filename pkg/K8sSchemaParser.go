@@ -54,7 +54,7 @@ type Parser interface {
 }
 
 type KubeChecker interface {
-	IsApiVersionSupported(releaseVersion, apiVersion, kind string)  bool
+	IsApiVersionSupported(releaseVersion, apiVersion, kind string) bool
 	Parser
 	Validator
 }
@@ -177,9 +177,9 @@ func (k *kubeCheckerImpl) loadOpenApi2(data []byte) (*openapi3.T, error) {
 		//kLog.Debug(fmt.Sprintf("%v", err))
 		return nil, err
 	}
-	for _, v := range doc.Components.Schemas {
-		v.Value.AdditionalPropertiesAllowed = openapi3.BoolPtr(false)
-	}
+	//for _, v := range doc.Components.Schemas {
+	//	v.Value.AdditionalPropertiesAllowed = openapi3.BoolPtr(false)
+	//}
 	return doc, nil
 }
 
