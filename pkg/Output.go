@@ -101,15 +101,15 @@ func (s *STDOutputManager) PutBulk(results []ValidationResult) error {
 			continue
 		} else if result.Deleted {
 			deleted = append(deleted, result)
-		} else if result.Deprecated && len(result.LatestAPIVersion) > 0 {
-			deprecated = append(deprecated, result)
+			/*} else if result.Deprecated && len(result.LatestAPIVersion) > 0 {
+			deprecated = append(deprecated, result)*/
 		} else if result.Deprecated {
-			//Skip
+			deprecated = append(deprecated, result)
 		} else if len(result.LatestAPIVersion) > 0 {
 			newerVersion = append(newerVersion, result)
 		} else {
-			if len(result.ErrorsForOriginal) > 0 || len(result.ErrorsForLatest) > 0 ||
-				len(result.DeprecationForOriginal) > 0 || len(result.DeprecationForLatest) > 0 {
+			if len(result.ErrorsForOriginal) == 0 && len(result.ErrorsForLatest) == 0 &&
+				len(result.DeprecationForOriginal) == 0 && len(result.DeprecationForLatest) == 0 {
 				unchanged = append(unchanged, result)
 			}
 		}
@@ -137,7 +137,7 @@ func (s *STDOutputManager) PutBulk(results []ValidationResult) error {
 		fmt.Printf("%s\n", yellow(">>>> Deprecated API Version's <<<<"))
 		s.SummaryTableBodyOutput(deprecated)
 		fmt.Println("")
-		//s.DeprecationTableBodyOutput(results, true)
+		s.DeprecationTableBodyOutput(deprecated, true)
 		s.ValidationErrorTableBodyOutput(deprecated, true)
 		s.DeprecationTableBodyOutput(deprecated, false)
 		s.ValidationErrorTableBodyOutput(deprecated, false)
@@ -319,7 +319,7 @@ type dataEvalResult struct {
 type jsonOutputManager struct {
 	logger *log.Logger
 
-	data []dataEvalResult
+	data []SummaryValidationResult
 }
 
 func newDefaultJSONOutputManager() *jsonOutputManager {
@@ -348,25 +348,121 @@ func getStatus(r ValidationResult) status {
 	return statusValid
 }
 
-func (j *jsonOutputManager) PutBulk(r []ValidationResult) error {
+func (j *jsonOutputManager) PutBulk(vrs []ValidationResult) error {
+	svrs := make([]SummaryValidationResult, len(vrs))
+	for _, vr := range vrs {
+		if vr.Deleted == false && vr.Deprecated == false && len(vr.ErrorsForLatest) == 0 && len(vr.ErrorsForOriginal) == 0 && len(vr.DeprecationForLatest) == 0 && len(vr.DeprecationForOriginal) == 0 {
+			continue
+		}
+		svr := SummaryValidationResult{
+			Deleted:            vr.Deleted,
+			Deprecated:         vr.Deprecated,
+			Kind:               vr.Kind,
+			ResourceName:       vr.ResourceName,
+			APIVersion:         vr.APIVersion,
+			FileName:           vr.FileName,
+			IsVersionSupported: vr.IsVersionSupported,
+			LatestAPIVersion:   vr.LatestAPIVersion,
+		}
+		for _, se := range vr.ErrorsForOriginal {
+			sse := &SummarySchemaError{
+				Path:        strings.Join(se.JSONPointer(), "/"),
+				SchemaField: se.SchemaField,
+				Reason:      se.Reason,
+				Origin:      se.Origin,
+			}
+			svr.ErrorsForOriginal = append(svr.ErrorsForOriginal, sse)
+		}
+		for _, se := range vr.ErrorsForLatest {
+			sse := &SummarySchemaError{
+				Path:        strings.Join(se.JSONPointer(), "/"),
+				SchemaField: se.SchemaField,
+				Reason:      se.Reason,
+				Origin:      se.Origin,
+			}
+			svr.ErrorsForLatest = append(svr.ErrorsForLatest, sse)
+		}
+		for _, se := range vr.DeprecationForOriginal {
+			sse := &SummarySchemaError{
+				Path:        strings.Join(se.JSONPointer(), "/"),
+				SchemaField: se.SchemaField,
+				Reason:      se.Reason,
+				Origin:      se.Origin,
+			}
+			svr.DeprecationForOriginal = append(svr.DeprecationForOriginal, sse)
+		}
+		for _, se := range vr.DeprecationForLatest {
+			sse := &SummarySchemaError{
+				Path:        strings.Join(se.JSONPointer(), "/"),
+				SchemaField: se.SchemaField,
+				Reason:      se.Reason,
+				Origin:      se.Origin,
+			}
+			svr.DeprecationForLatest = append(svr.DeprecationForLatest, sse)
+		}
+		svrs = append(svrs, svr)
+	}
+	j.data = svrs
 	return nil
 }
 
-func (j *jsonOutputManager) Put(r ValidationResult) error {
+func (j *jsonOutputManager) Put(vr ValidationResult) error {
 	// stringify gojsonschema errors
 	// use a pre-allocated slice to ensure the json will have an
 	// empty array in the "zero" case
-	errs := make([]string, 0, len(r.Errors))
-	for _, e := range r.Errors {
-		errs = append(errs, e.String())
+	//errs := make([]string, 0, len(r.Errors))
+	//for _, e := range r.Errors {
+	//	errs = append(errs, e.String())
+	//}
+
+	svr := SummaryValidationResult{
+		Deleted:            vr.Deleted,
+		Deprecated:         vr.Deprecated,
+		Kind:               vr.Kind,
+		ResourceName:       vr.ResourceName,
+		APIVersion:         vr.APIVersion,
+		FileName:           vr.FileName,
+		IsVersionSupported: vr.IsVersionSupported,
+		LatestAPIVersion:   vr.LatestAPIVersion,
+	}
+	for _, se := range vr.ErrorsForOriginal {
+		sse := &SummarySchemaError{
+			Path:        strings.Join(se.JSONPointer(), "/"),
+			SchemaField: se.SchemaField,
+			Reason:      se.Reason,
+			Origin:      se.Origin,
+		}
+		svr.ErrorsForOriginal = append(svr.ErrorsForOriginal, sse)
+	}
+	for _, se := range vr.ErrorsForLatest {
+		sse := &SummarySchemaError{
+			Path:        strings.Join(se.JSONPointer(), "/"),
+			SchemaField: se.SchemaField,
+			Reason:      se.Reason,
+			Origin:      se.Origin,
+		}
+		svr.ErrorsForLatest = append(svr.ErrorsForLatest, sse)
+	}
+	for _, se := range vr.DeprecationForOriginal {
+		sse := &SummarySchemaError{
+			Path:        strings.Join(se.JSONPointer(), "/"),
+			SchemaField: se.SchemaField,
+			Reason:      se.Reason,
+			Origin:      se.Origin,
+		}
+		svr.DeprecationForOriginal = append(svr.DeprecationForOriginal, sse)
+	}
+	for _, se := range vr.DeprecationForLatest {
+		sse := &SummarySchemaError{
+			Path:        strings.Join(se.JSONPointer(), "/"),
+			SchemaField: se.SchemaField,
+			Reason:      se.Reason,
+			Origin:      se.Origin,
+		}
+		svr.DeprecationForLatest = append(svr.DeprecationForLatest, sse)
 	}
 
-	j.data = append(j.data, dataEvalResult{
-		Filename: r.FileName,
-		Kind:     r.Kind,
-		Status:   getStatus(r),
-		Errors:   errs,
-	})
+	j.data = append(j.data, svr)
 
 	return nil
 }

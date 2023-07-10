@@ -28,8 +28,6 @@ import (
 	"strings"
 )
 
-
-
 type kubeSpec struct {
 	*openapi3.T
 	kindInfoMap map[string][]*KindInfo
@@ -89,8 +87,13 @@ func (ks *kubeSpec) ValidateObject(object map[string]interface{}) (ValidationRes
 		validationResult.ErrorsForOriginal = ves
 		validationResult.DeprecationForOriginal = des
 		validationResult.Deprecated = deprecated
-	} else if len(original) == 0 && len(latest) > 0 {
+		//if original == latest {
+		//	validationResult.ErrorsForLatest = ves
+		//	validationResult.DeprecationForLatest = des
+		//}
+	} else if len(latest) == 0 {
 		validationResult.Deleted = true
+		validationResult.IsVersionSupported = 2
 	}
 	if len(latest) > 0 && original != latest {
 		var ves []*openapi3.SchemaError
@@ -255,7 +258,7 @@ func (ks *kubeSpec) applySchema(object map[string]interface{}, token string) (op
 
 	opts := []openapi3.SchemaValidationOption{openapi3.MultiErrors()}
 	depError := VisitJSON(scm, object, SchemaSettings{MultiError: true})
-	if len(depError) > 0 {
+	if strings.Index(strings.ToLower(scm.Description), "deprecated") >= 0 {
 		deprecated = true
 	}
 	validationError = append(validationError, depError...)
@@ -282,7 +285,7 @@ func (ks *kubeSpec) getKeyForGVFromToken(token string) (string, error) {
 }
 
 func (ks *kubeSpec) schemaLookup(token string) (*openapi3.Schema, error) {
-	for ; ; {
+	for {
 		if strings.Index(token, "/") > 0 {
 			parts := strings.Split(token, "/")
 			token = parts[len(parts)-1]

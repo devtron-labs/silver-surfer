@@ -60,6 +60,29 @@ type ValidationResult struct {
 	IsVersionSupported     int
 }
 
+type SummarySchemaError struct {
+	Path        string
+	SchemaField string
+	Reason      string
+	Origin      error
+}
+
+type SummaryValidationResult struct {
+	FileName               string
+	Kind                   string
+	APIVersion             string
+	ResourceName           string
+	ResourceNamespace      string
+	Deleted                bool
+	Deprecated             bool
+	LatestAPIVersion       string
+	IsVersionSupported     int
+	ErrorsForOriginal      []*SummarySchemaError
+	ErrorsForLatest        []*SummarySchemaError
+	DeprecationForOriginal []*SummarySchemaError
+	DeprecationForLatest   []*SummarySchemaError
+}
+
 // VersionKind returns a string representation of this result's apiVersion and kind
 func (v *ValidationResult) VersionKind() string {
 	return v.APIVersion + "/" + v.Kind

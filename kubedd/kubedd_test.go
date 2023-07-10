@@ -10,9 +10,9 @@ import (
 func TestValidateCluster(t *testing.T) {
 	cluster := pkg.NewCluster("", "")
 	config := pkg.NewDefaultConfig()
-	config.SelectKinds = []string{"Deployment"}
-	config.SelectNamespaces = []string{"esrgan2k"}
-	config.TargetKubernetesVersion = "1.27"
+	config.SelectKinds = []string{"ReplicaSet"}
+	//config.SelectNamespaces = []string{"esrgan2k"}
+	config.TargetKubernetesVersion = "1.24"
 	//config.SelectNamespaces = []string{"prod"}
 	type args struct {
 		cluster *pkg.Cluster
