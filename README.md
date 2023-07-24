@@ -33,7 +33,7 @@
   </p>
 </div>
 
-## Motivation
+## Motivation :bulb:
 
 Currently there is no easy way to upgrade Kubernetes objects in case of Kubernetes newer versions. There are some tools
 which are available for this purpose, but we found them inadequate for migration requirements.
@@ -52,7 +52,7 @@ Supported input formats
 It provides details of issues with the Kubernetes object in case they are migrated to cluster with newer Kubernetes
 version.
 
-## Getting Started
+## Getting Started :rocket:
 
 ### Quick Installation
 
@@ -88,7 +88,7 @@ docker run -v /host/path-to/.kube-dir/:/opt/.kube --privileged --net=host --name
 
 You can download the binaries for Windows, Linux and MacOS from the [release page](https://github.com/devtron-labs/silver-surfer/releases) on this repository.
 
-## Usage
+## Usage :gear:
 
 Use the binary `./kubedd` to execute the commands and get insights of your current Kubernetes objects.
 
@@ -123,7 +123,7 @@ Flags:
       --version                               version for kubedd
 ```
 
-## Output
+## Output :file_folder:
 
 It categorises Kubernetes objects based on change in ApiVersion. Categories are -
 
@@ -140,7 +140,7 @@ Within each category it identifies migration path to newer ApiVersion, possible 
 
 This activity is performed for both current and new ApiVersion.
 
-## Contribute
+## Contribute :handshake:
 
 Collaborations and contributions are the beauty of open source communities. It creates an environment where we learn, inspire and create amazing tools with the help of community to solve the real-life use cases. Here are couple of ways you can contribute to silver-surfer -
 
@@ -150,7 +150,7 @@ Collaborations and contributions are the beauty of open source communities. It c
 
 Check out our [contributing guidelines](CONTRIBUTING.md) for more details. We deeply appreciate your contributions.
 
-## Other Similar Tools
+## Other Similar Tools :link:
 
 1. [kubeval](https://github.com/instrumenta/kubeval) - The most popular, only validates against the given Kubernetes version, doesn't provide migration path and is no longer maintained.
 2. [kube-no-trouble](https://github.com/doitintl/kube-no-trouble) - Provides information about removed and deprecated APIs but doesn't validate schema.
