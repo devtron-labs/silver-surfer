@@ -7,7 +7,7 @@
 <div align="center">
   <h1 align="center">Silver Surfer - Kubedd</h1>
   <p align="center">
-    ApiVersion Compatibility Checker & Provides Migration Path for K8s Objects
+    Api-Version Compatibility Checker & Provides Migration Path for K8s Objects
     <br />
     <a href="#bulb-motivation"><strong>Motivation</strong></a>
     |
