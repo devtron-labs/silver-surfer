@@ -26,7 +26,6 @@ import (
 	"github.com/devtron-labs/silver-surfer/pkg"
 	log2 "github.com/devtron-labs/silver-surfer/pkg/log"
 	"github.com/prometheus/common/log"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -128,7 +127,7 @@ func processFiles(args []string) bool {
 	var aggResults []pkg.ValidationResult
 	for _, fileName := range files {
 		filePath, _ := filepath.Abs(fileName)
-		fileContents, err := ioutil.ReadFile(filePath)
+		fileContents, err := os.ReadFile(filePath)
 		if err != nil {
 			log.Error(fmt.Errorf("Could not open file %v", fileName))
 			earlyExit()
