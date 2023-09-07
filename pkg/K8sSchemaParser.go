@@ -26,9 +26,9 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/tidwall/sjson"
 	"io"
-	"io/ioutil"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"net/http"
+	"os"
 )
 
 const (
@@ -76,7 +76,7 @@ func (k *kubeCheckerImpl) LoadFromPath(releaseVersion string, filePath string, f
 	if _, ok := k.versionMap[releaseVersion]; ok && !force {
 		return nil
 	}
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		//kLog.Debug(fmt.Sprintf("%v", err))
 		return err
