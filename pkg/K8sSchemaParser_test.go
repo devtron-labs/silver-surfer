@@ -213,7 +213,7 @@ const redis_svc = `
   }
 }`
 
-const cm =`
+const cm = `
 {
   "apiVersion": "v1",
   "kind": "ConfigMap",
@@ -266,10 +266,50 @@ const secret_stringdata = `
   }
 }`
 
+const psp_stringdata = `
+{
+  "apiVersion": "policy/v1beta1",
+  "kind": "PodSecurityPolicy",
+  "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"policy/v1beta1\",\"kind\":\"PodSecurityPolicy\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"cost-analyzer\",\"app.kubernetes.io/instance\":\"data-prod-kubecost-data-prod-mon\",\"app.kubernetes.io/managed-by\":\"Helm\",\"app.kubernetes.io/name\":\"cost-analyzer\",\"helm.sh/chart\":\"cost-analyzer-1.101.3\"},\"name\":\"data-prod-kubecost-data-prod-mon-cost-analyzer-psp\"},\"spec\":{\"fsGroup\":{\"rule\":\"RunAsAny\"},\"privileged\":false,\"runAsUser\":{\"rule\":\"RunAsAny\"},\"seLinux\":{\"rule\":\"RunAsAny\"},\"supplementalGroups\":{\"rule\":\"RunAsAny\"},\"volumes\":[\"*\"]}}\n"
+    },
+    "creationTimestamp": "2023-03-24T07:13:18.000Z",
+    "labels": {
+      "app": "cost-analyzer",
+      "app.kubernetes.io/instance": "data-prod-kubecost-data-prod-mon",
+      "app.kubernetes.io/managed-by": "Helm",
+      "app.kubernetes.io/name": "cost-analyzer",
+      "helm.sh/chart": "cost-analyzer-1.101.3"
+    },
+    "name": "data-prod-kubecost-data-prod-mon-cost-analyzer-psp",
+    "resourceVersion": "517430199",
+    "uid": "bce89b74-81eb-426c-83bb-31c99884e81c"
+  },
+  "spec": {
+    "allowPrivilegeEscalation": true,
+    "fsGroup": {
+      "rule": "RunAsAny"
+    },
+    "runAsUser": {
+      "rule": "RunAsAny"
+    },
+    "seLinux": {
+      "rule": "RunAsAny"
+    },
+    "supplementalGroups": {
+      "rule": "RunAsAny"
+    },
+    "volumes": [
+      "*"
+    ]
+  }
+}`
+
 func TestDownloadFile(t *testing.T) {
 	type args struct {
 		releaseVersion string
-		object string
+		object         string
 	}
 	tests := []struct {
 		name    string
@@ -277,54 +317,59 @@ func TestDownloadFile(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "Positive - Test deployment",
-			args: args{releaseVersion: "1.16", object: correct_deployment},
+			name:    "Positive - Test deployment",
+			args:    args{releaseVersion: "1.16", object: correct_deployment},
 			wantErr: false,
 		},
 		{
-			name: "Negative - Test deployment",
-			args: args{releaseVersion: "1.16", object: deployment},
+			name:    "Negative - Test deployment",
+			args:    args{releaseVersion: "1.16", object: deployment},
 			wantErr: true,
 		},
 		{
-			name: "Positive - Test Service",
-			args: args{releaseVersion: "1.20", object: svc},
+			name:    "Positive - Test Service",
+			args:    args{releaseVersion: "1.20", object: svc},
 			wantErr: false,
 		},
 		{
-			name: "Negative - Test Service",
-			args: args{releaseVersion: "1.20", object: redis_svc},
+			name:    "Negative - Test Service",
+			args:    args{releaseVersion: "1.20", object: redis_svc},
 			wantErr: true,
 		},
 		{
-			name: "Positive - Test Service",
-			args: args{releaseVersion: "1.20", object: svc_string_port},
+			name:    "Positive - Test Service",
+			args:    args{releaseVersion: "1.20", object: svc_string_port},
 			wantErr: false,
 		},
 		{
-			name: "Positive - Test deployment extension, handled via apps/v1",
-			args: args{releaseVersion: "1.18", object: extension_deployment},
+			name:    "Positive - Test deployment extension, handled via apps/v1",
+			args:    args{releaseVersion: "1.18", object: extension_deployment},
 			wantErr: true,
 		},
 		{
-			name: "Positive - Test deployment extension",
-			args: args{releaseVersion: "1.16", object: extension_deployment},
+			name:    "Positive - Test deployment extension",
+			args:    args{releaseVersion: "1.16", object: extension_deployment},
 			wantErr: true,
 		},
 		{
-			name: "Positive - Test configmap",
-			args: args{releaseVersion: "1.17", object: cm},
+			name:    "Positive - Test configmap",
+			args:    args{releaseVersion: "1.17", object: cm},
 			wantErr: false,
 		},
 		{
-			name: "Positive - Test secret",
-			args: args{releaseVersion: "1.17", object: secret},
+			name:    "Positive - Test secret",
+			args:    args{releaseVersion: "1.17", object: secret},
 			wantErr: false,
 		},
 		{
-			name: "Positive - Test secret stringdata",
-			args: args{releaseVersion: "1.17", object: secret_stringdata},
+			name:    "Positive - Test secret stringdata",
+			args:    args{releaseVersion: "1.17", object: secret_stringdata},
 			wantErr: false,
+		},
+		{
+			name:    "Negative - Test psp stringdata -deleted",
+			args:    args{releaseVersion: "1.25", object: psp_stringdata},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -333,8 +378,11 @@ func TestDownloadFile(t *testing.T) {
 			var err error
 			err = kc.LoadFromUrl(tt.args.releaseVersion, false)
 			v, err := kc.ValidateJson(tt.args.object, tt.args.releaseVersion)
+			v = FilterValidationResults(v, &Config{})
+			outputManager := GetOutputManager(outputSTD, true)
+			outputManager.PutBulk([]ValidationResult{v})
 			//fmt.Println(string(got))
-			hasErr := len(v.ErrorsForOriginal) > 0 || len(v.ErrorsForLatest) > 0
+			hasErr := len(v.ErrorsForOriginal) > 0 || len(v.ErrorsForLatest) > 0 || v.Deleted == true || v.Deprecated == true
 			if hasErr != tt.wantErr {
 				t.Errorf("DownloadFile() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -360,7 +408,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v1beta1",
 				second: "v1",
 			},
-			want: true,
+			want:    true,
 			wantErr: false,
 		},
 		{
@@ -369,7 +417,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v2beta1",
 				second: "v1",
 			},
-			want: false,
+			want:    false,
 			wantErr: false,
 		},
 		{
@@ -378,7 +426,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v1beta1",
 				second: "v1alpha1",
 			},
-			want: false,
+			want:    false,
 			wantErr: false,
 		},
 		{
@@ -387,7 +435,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v1alpha1",
 				second: "v1beta1",
 			},
-			want: true,
+			want:    true,
 			wantErr: false,
 		},
 		{
@@ -396,7 +444,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v1beta1",
 				second: "v1beta2",
 			},
-			want: true,
+			want:    true,
 			wantErr: false,
 		},
 		{
@@ -405,7 +453,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v1beta2",
 				second: "v1beta1",
 			},
-			want: false,
+			want:    false,
 			wantErr: false,
 		},
 		{
@@ -414,7 +462,7 @@ func Test_compareVersion(t *testing.T) {
 				first:  "v2",
 				second: "v1",
 			},
-			want: false,
+			want:    false,
 			wantErr: false,
 		},
 	}

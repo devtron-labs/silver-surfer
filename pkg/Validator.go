@@ -91,11 +91,14 @@ func (ks *kubeSpec) ValidateObject(object map[string]interface{}) (ValidationRes
 		//	validationResult.ErrorsForLatest = ves
 		//	validationResult.DeprecationForLatest = des
 		//}
-	} else if len(latest) == 0 {
+	} else if len(latest) == 0 { //if original and latest both are not present i.e; this has been completely removed eg psp
+		validationResult.Deleted = true
+		validationResult.IsVersionSupported = 2
+	} else if len(latest) > 0 { //if original is not present but latest is then original is removed
 		validationResult.Deleted = true
 		validationResult.IsVersionSupported = 2
 	}
-	if len(latest) > 0 && original != latest {
+	if len(latest) > 0 && original != latest { //compute only if latest is different from original i.e; newer version is available
 		var ves []*openapi3.SchemaError
 		var des []*SchemaError
 		validationError, _ := ks.applySchema(object, latest)
@@ -327,7 +330,7 @@ func (ks *kubeSpec) getKindsMappings(object map[string]interface{}) (original, l
 				original = ki.ComponentKey
 			}
 		}
-		if len(kis) > 0 {
+		if len(kis) > 0 { // most resent entry is the latest one
 			latest = kis[len(kis)-1].ComponentKey
 		}
 	}
