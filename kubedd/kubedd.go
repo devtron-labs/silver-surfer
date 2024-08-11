@@ -22,7 +22,9 @@ import (
 	"fmt"
 	"github.com/devtron-labs/silver-surfer/pkg"
 	kLog "github.com/devtron-labs/silver-surfer/pkg/log"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"os"
+	"strings"
 )
 
 var yamlSeparator = []byte("\n---\n")
@@ -114,8 +116,14 @@ func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationRe
 		annotations := obj.GetAnnotations()
 		k8sObj := ""
 		if val, ok := annotations["kubectl.kubernetes.io/last-applied-configuration"]; ok {
-			k8sObj = val
-		} else {
+			var uns unstructured.Unstructured
+			if err := uns.UnmarshalJSON([]byte(val)); err != nil {
+				if strings.EqualFold(uns.GetKind(), obj.GetKind()) {
+					k8sObj = val
+				}
+			}
+		}
+		if len(k8sObj) == 0 {
 			bt, err := obj.MarshalJSON()
 			if err != nil {
 				continue
