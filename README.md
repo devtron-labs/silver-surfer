@@ -7,7 +7,7 @@
 <div align="center">
   <h1 align="center">Silver Surfer - Kubedd</h1>
   <p align="center">
-    Api-Version Compatibility Checker & Provides Migration Path for K8s Objects
+    Api-Version Compatibility Checker & Provides Migration Path for K8s Objects 
     <br />
     <a href="#bulb-motivation"><strong>Motivation</strong></a>
     |
@@ -70,7 +70,7 @@ It's done. A `bin` directory must have created with the binary ready to use `./k
 
 ### Running Within Container
 
-You can also use the Dockerfile present to run command within a container and analyze the cluster running in your host machine. Switch to the project directory containing the dockerfile and execute the following commands.
+We can also use the Dockerfile present to run command within a container and analyze the cluster running in your host machine. Switch to the project directory containing the dockerfile and execute the following commands.
 
 1. Build the container image with name `silver-surfer`
 
