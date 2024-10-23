@@ -1,6 +1,6 @@
 # How to Contribute
 
-`Silver Surfer` is [Apache 2.0 licensed](LICENSE) and accepts contributions via GitHub
+**Silver Surfer** is [Apache 2.0 licensed](LICENSE) and accepts contributions via GitHub
 pull requests. This document outlines some coding conventions, contact points and other resources to make
 it easier to get your contribution accepted.
 
@@ -35,4 +35,4 @@ Start reading our code and you'll get the hang of it. We optimize for readabilit
 
 The project uses discord for communication:
 
-To join the conversation, simply join the **[discord](https://discord.gg/jsRG5qx2gp)**  and use the __#contrib__ channel.
+To join the conversation, simply join the **[discord](https://discord.gg/jsRG5qx2gp)**  and use the `#contrib` channel.
