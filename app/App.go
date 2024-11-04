@@ -89,7 +89,7 @@ func (app *App) initGrpcServer(port int) error {
 	app.grpcServer = grpc.NewServer(opts...)
 
 	// register Silver Surfer service
-	grpc2.RegisterApplicationServiceServer(app.grpcServer, app.GrpcHandler)
+	grpc2.RegisterSilverSurferServiceServer(app.grpcServer, app.GrpcHandler)
 
 	// start listening on address
 	if err = app.grpcServer.Serve(lis); err != nil {

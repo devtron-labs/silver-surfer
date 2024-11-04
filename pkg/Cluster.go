@@ -2,7 +2,11 @@ package pkg
 
 import (
 	"context"
+	"flag"
 	"fmt"
+	"os"
+	"os/user"
+	"path/filepath"
 	"strings"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -64,11 +68,28 @@ func NewCluster(kubeconfig string, kubecontext string) *Cluster {
 
 func NewClusterViaInClusterConfig() *Cluster {
 	cluster := Cluster{}
-	restConfig, err := rest.InClusterConfig()
-	if err != nil {
-		fmt.Println("error in getting rest config via InClusterConfig")
-		panic(err)
+	restConfig := &rest.Config{}
+	var err error
+	useLocalDevMode := os.Getenv("USE_LOCAL_DEV_MODE")
+	if useLocalDevMode == "true" {
+		usr, err := user.Current()
+		if err != nil {
+			panic(err)
+		}
+		kubeconfig := flag.String("kubeconfig", filepath.Join(usr.HomeDir, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+		//flag.Parse()
+		restConfig, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		restConfig, err = rest.InClusterConfig()
+		if err != nil {
+			fmt.Println("error in getting rest config via InClusterConfig")
+			panic(err)
+		}
 	}
+
 	cluster.restConfig = restConfig
 	cluster.restConfig.WarningHandler = rest.NoWarnings{}
 

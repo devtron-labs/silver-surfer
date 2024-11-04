@@ -11,7 +11,7 @@ message ClusterUpgradeResponse {
  repeated SummaryValidationResult Results = 1;
 }
 
-service ApplicationService {
+service SilverSurferService {
  rpc GetClusterUpgradeSummaryValidationResult(ClusterUpgradeRequest) returns (ClusterUpgradeResponse) {}
 }
 

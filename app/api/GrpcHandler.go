@@ -9,7 +9,7 @@ import (
 )
 
 type GrpcHandlerImpl struct {
-	grpc.UnimplementedApplicationServiceServer
+	grpc.UnimplementedSilverSurferServiceServer
 	logger                    *zap.SugaredLogger
 	clusterUpgradeReadService service.ClusterUpgradeReadService
 }

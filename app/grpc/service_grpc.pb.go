@@ -18,86 +18,86 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// ApplicationServiceClient is the client API for ApplicationService service.
+// SilverSurferServiceClient is the client API for SilverSurferService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ApplicationServiceClient interface {
+type SilverSurferServiceClient interface {
 	GetClusterUpgradeSummaryValidationResult(ctx context.Context, in *ClusterUpgradeRequest, opts ...grpc.CallOption) (*ClusterUpgradeResponse, error)
 }
 
-type applicationServiceClient struct {
+type silverSurferServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewApplicationServiceClient(cc grpc.ClientConnInterface) ApplicationServiceClient {
-	return &applicationServiceClient{cc}
+func NewSilverSurferServiceClient(cc grpc.ClientConnInterface) SilverSurferServiceClient {
+	return &silverSurferServiceClient{cc}
 }
 
-func (c *applicationServiceClient) GetClusterUpgradeSummaryValidationResult(ctx context.Context, in *ClusterUpgradeRequest, opts ...grpc.CallOption) (*ClusterUpgradeResponse, error) {
+func (c *silverSurferServiceClient) GetClusterUpgradeSummaryValidationResult(ctx context.Context, in *ClusterUpgradeRequest, opts ...grpc.CallOption) (*ClusterUpgradeResponse, error) {
 	out := new(ClusterUpgradeResponse)
-	err := c.cc.Invoke(ctx, "/ApplicationService/GetClusterUpgradeSummaryValidationResult", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/SilverSurferService/GetClusterUpgradeSummaryValidationResult", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ApplicationServiceServer is the server API for ApplicationService service.
-// All implementations must embed UnimplementedApplicationServiceServer
+// SilverSurferServiceServer is the server API for SilverSurferService service.
+// All implementations must embed UnimplementedSilverSurferServiceServer
 // for forward compatibility
-type ApplicationServiceServer interface {
+type SilverSurferServiceServer interface {
 	GetClusterUpgradeSummaryValidationResult(context.Context, *ClusterUpgradeRequest) (*ClusterUpgradeResponse, error)
-	mustEmbedUnimplementedApplicationServiceServer()
+	mustEmbedUnimplementedSilverSurferServiceServer()
 }
 
-// UnimplementedApplicationServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedApplicationServiceServer struct {
+// UnimplementedSilverSurferServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedSilverSurferServiceServer struct {
 }
 
-func (UnimplementedApplicationServiceServer) GetClusterUpgradeSummaryValidationResult(context.Context, *ClusterUpgradeRequest) (*ClusterUpgradeResponse, error) {
+func (UnimplementedSilverSurferServiceServer) GetClusterUpgradeSummaryValidationResult(context.Context, *ClusterUpgradeRequest) (*ClusterUpgradeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetClusterUpgradeSummaryValidationResult not implemented")
 }
-func (UnimplementedApplicationServiceServer) mustEmbedUnimplementedApplicationServiceServer() {}
+func (UnimplementedSilverSurferServiceServer) mustEmbedUnimplementedSilverSurferServiceServer() {}
 
-// UnsafeApplicationServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ApplicationServiceServer will
+// UnsafeSilverSurferServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to SilverSurferServiceServer will
 // result in compilation errors.
-type UnsafeApplicationServiceServer interface {
-	mustEmbedUnimplementedApplicationServiceServer()
+type UnsafeSilverSurferServiceServer interface {
+	mustEmbedUnimplementedSilverSurferServiceServer()
 }
 
-func RegisterApplicationServiceServer(s grpc.ServiceRegistrar, srv ApplicationServiceServer) {
-	s.RegisterService(&ApplicationService_ServiceDesc, srv)
+func RegisterSilverSurferServiceServer(s grpc.ServiceRegistrar, srv SilverSurferServiceServer) {
+	s.RegisterService(&SilverSurferService_ServiceDesc, srv)
 }
 
-func _ApplicationService_GetClusterUpgradeSummaryValidationResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SilverSurferService_GetClusterUpgradeSummaryValidationResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ClusterUpgradeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApplicationServiceServer).GetClusterUpgradeSummaryValidationResult(ctx, in)
+		return srv.(SilverSurferServiceServer).GetClusterUpgradeSummaryValidationResult(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ApplicationService/GetClusterUpgradeSummaryValidationResult",
+		FullMethod: "/SilverSurferService/GetClusterUpgradeSummaryValidationResult",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApplicationServiceServer).GetClusterUpgradeSummaryValidationResult(ctx, req.(*ClusterUpgradeRequest))
+		return srv.(SilverSurferServiceServer).GetClusterUpgradeSummaryValidationResult(ctx, req.(*ClusterUpgradeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// ApplicationService_ServiceDesc is the grpc.ServiceDesc for ApplicationService service.
+// SilverSurferService_ServiceDesc is the grpc.ServiceDesc for SilverSurferService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var ApplicationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "ApplicationService",
-	HandlerType: (*ApplicationServiceServer)(nil),
+var SilverSurferService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "SilverSurferService",
+	HandlerType: (*SilverSurferServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetClusterUpgradeSummaryValidationResult",
-			Handler:    _ApplicationService_GetClusterUpgradeSummaryValidationResult_Handler,
+			Handler:    _SilverSurferService_GetClusterUpgradeSummaryValidationResult_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
