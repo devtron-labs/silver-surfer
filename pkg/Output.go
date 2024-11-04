@@ -356,7 +356,8 @@ func getStatus(r ValidationResult) status {
 func (j *jsonOutputManager) PutBulk(vrs []ValidationResult) error {
 	svrs := make([]SummaryValidationResult, len(vrs))
 	for _, vr := range vrs {
-		if vr.Deleted == false && vr.Deprecated == false && len(vr.ErrorsForLatest) == 0 && len(vr.ErrorsForOriginal) == 0 && len(vr.DeprecationForLatest) == 0 && len(vr.DeprecationForOriginal) == 0 {
+		skipCondition := len(vr.Kind) == 0 || (vr.Deleted == false && vr.Deprecated == false && len(vr.ErrorsForLatest) == 0 && len(vr.ErrorsForOriginal) == 0 && len(vr.DeprecationForLatest) == 0 && len(vr.DeprecationForOriginal) == 0)
+		if skipCondition {
 			continue
 		}
 		svr := SummaryValidationResult{
