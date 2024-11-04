@@ -25,7 +25,11 @@ import (
 	"github.com/devtron-labs/silver-surfer/kubedd"
 	"github.com/devtron-labs/silver-surfer/pkg"
 	log2 "github.com/devtron-labs/silver-surfer/pkg/log"
+	"github.com/fatih/color"
+	multierror "github.com/hashicorp/go-multierror"
 	"github.com/prometheus/common/log"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	log3 "log"
 	"net/http"
@@ -35,11 +39,6 @@ import (
 	"regexp"
 	"strings"
 	"syscall"
-
-	"github.com/fatih/color"
-	multierror "github.com/hashicorp/go-multierror"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -289,22 +288,25 @@ func init() {
 }
 
 func main() {
-	go Execute()
-	app, err := InitializeApp()
-	if err != nil {
-		log3.Panic(err)
+	useAsCli := os.Getenv("USE_AS_CLI")
+	if useAsCli == "true" {
+		Execute()
+	} else {
+		app, err := InitializeApp()
+		if err != nil {
+			log3.Panic(err)
+		}
+		//     gracefulStop start
+		var gracefulStop = make(chan os.Signal)
+		signal.Notify(gracefulStop, syscall.SIGTERM)
+		signal.Notify(gracefulStop, syscall.SIGINT)
+		go func() {
+			sig := <-gracefulStop
+			fmt.Printf("caught sig: %+v", sig)
+			app.Stop()
+			os.Exit(0)
+		}()
+		//      gracefulStop end
+		app.Start()
 	}
-	//     gracefulStop start
-	var gracefulStop = make(chan os.Signal)
-	signal.Notify(gracefulStop, syscall.SIGTERM)
-	signal.Notify(gracefulStop, syscall.SIGINT)
-	go func() {
-		sig := <-gracefulStop
-		fmt.Printf("caught sig: %+v", sig)
-		app.Stop()
-		os.Exit(0)
-	}()
-	//      gracefulStop end
-	app.Start()
-
 }
