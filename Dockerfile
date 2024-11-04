@@ -1,5 +1,5 @@
 # Binary Build
-FROM golang:1.15.10-alpine3.13  AS build-env
+FROM golang:1.21-alpine3.13  AS build-env
 RUN echo $GOPATH
 RUN apk add --no-cache git gcc musl-dev
 RUN apk add --update make
