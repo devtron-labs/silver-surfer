@@ -14,7 +14,7 @@ ADD . /silver-surfer/
 RUN GOOS=linux make
 
 # Prod Build
-FROM alpine3.17
+FROM alpine:3.17
 RUN apk add --no-cache ca-certificates
 RUN apk update
 RUN apk add git
