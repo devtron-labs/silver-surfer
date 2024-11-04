@@ -1,5 +1,5 @@
 # Binary Build
-FROM golang:1.21-alpine3.13  AS build-env
+FROM golang:1.21-alpine3.17  AS build-env
 RUN echo $GOPATH
 RUN apk add --no-cache git gcc musl-dev
 RUN apk add --update make
@@ -14,7 +14,7 @@ ADD . /silver-surfer/
 RUN GOOS=linux make
 
 # Prod Build
-FROM alpine:3.13
+FROM alpine3.17
 RUN apk add --no-cache ca-certificates
 RUN apk update
 RUN apk add git
