@@ -10,13 +10,15 @@ import (
 	"github.com/devtron-labs/silver-surfer/app"
 	"github.com/devtron-labs/silver-surfer/app/api"
 	"github.com/devtron-labs/silver-surfer/app/logger"
+	"github.com/devtron-labs/silver-surfer/app/service"
 )
 
 // Injectors from Wire.go:
 
 func InitializeApp() (*app.App, error) {
 	sugaredLogger := logger.NewSugaredLogger()
-	grpcHandlerImpl := api.NewGrpcHandlerImpl(sugaredLogger)
+	clusterUpgradeReadServiceImpl := service.NewClusterUpgradeReadServiceImpl(sugaredLogger)
+	grpcHandlerImpl := api.NewGrpcHandlerImpl(sugaredLogger, clusterUpgradeReadServiceImpl)
 	appApp := app.NewApp(sugaredLogger, grpcHandlerImpl)
 	return appApp, nil
 }

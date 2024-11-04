@@ -62,6 +62,28 @@ func NewCluster(kubeconfig string, kubecontext string) *Cluster {
 	return &cluster
 }
 
+func NewClusterViaInClusterConfig() *Cluster {
+	cluster := Cluster{}
+	restConfig, err := rest.InClusterConfig()
+	if err != nil {
+		fmt.Println("error in getting rest config via InClusterConfig")
+		panic(err)
+	}
+	cluster.restConfig = restConfig
+	cluster.restConfig.WarningHandler = rest.NoWarnings{}
+
+	if cluster.disco, err = discovery.NewDiscoveryClientForConfig(cluster.restConfig); err != nil {
+		panic(err)
+	}
+
+	cluster.clientset, err = dynamic.NewForConfig(cluster.restConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	return &cluster
+}
+
 func (c *Cluster) ServerVersion() (string, error) {
 	info, err := c.disco.ServerVersion()
 	if err != nil {

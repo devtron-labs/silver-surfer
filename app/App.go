@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/caarlos0/env"
 	"github.com/devtron-labs/silver-surfer/app/api"
+	"github.com/devtron-labs/silver-surfer/app/constants"
 	grpc2 "github.com/devtron-labs/silver-surfer/app/grpc"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"go.uber.org/zap"
@@ -69,7 +70,7 @@ func (app *App) initGrpcServer(port int) error {
 	}
 
 	grpcPanicRecoveryHandler := func(p any) (err error) {
-		app.logger.Error(PanicLogIdentifier, "recovered from panic", "panic", p, "stack", string(debug.Stack()))
+		app.logger.Error(constants.PanicLogIdentifier, "recovered from panic", "panic", p, "stack", string(debug.Stack()))
 		return status.Errorf(codes.Internal, "%s", p)
 	}
 	recoveryOption := recovery.WithRecoveryHandler(grpcPanicRecoveryHandler)

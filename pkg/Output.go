@@ -43,6 +43,7 @@ type OutputManager interface {
 	PutBulk(r []ValidationResult) error
 	Put(r ValidationResult) error
 	Flush() error
+	GetSummaryValidationResultBulk() []SummaryValidationResult
 }
 
 const (
@@ -300,6 +301,10 @@ func (s *STDOutputManager) Flush() error {
 	return nil
 }
 
+func (j *STDOutputManager) GetSummaryValidationResultBulk() []SummaryValidationResult {
+	return nil
+}
+
 type status string
 
 const (
@@ -483,6 +488,10 @@ func (j *jsonOutputManager) Flush() error {
 	return nil
 }
 
+func (j *jsonOutputManager) GetSummaryValidationResultBulk() []SummaryValidationResult {
+	return j.data
+}
+
 // tapOutputManager reports `conftest` results to stdout.
 type tapOutputManager struct {
 	logger *log.Logger
@@ -561,5 +570,9 @@ func (j *tapOutputManager) Flush() error {
 			}
 		}
 	}
+	return nil
+}
+
+func (j *tapOutputManager) GetSummaryValidationResultBulk() []SummaryValidationResult {
 	return nil
 }

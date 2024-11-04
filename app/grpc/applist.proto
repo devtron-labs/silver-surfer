@@ -8,7 +8,7 @@ message ClusterUpgradeRequest {
 }
 
 message ClusterUpgradeResponse {
- repeated SummaryValidationResult results = 1;
+ repeated SummaryValidationResult Results = 1;
 }
 
 service ApplicationService {
@@ -30,9 +30,9 @@ message SummaryValidationResult  {
   repeated SummarySchemaError DeprecationForOriginal=12;
   repeated  SummarySchemaError DeprecationForLatest=13;
 }
+
 message  SummarySchemaError  {
   string Path = 1;
   string SchemaField=2;
   string Reason=3;
-  string Origin =4;
 }
