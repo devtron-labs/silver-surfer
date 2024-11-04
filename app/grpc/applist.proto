@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option go_package = "github.com/devtron-labs/silver-surfer/app/grpc";
+
+// Define the request message
+message ClusterUpgradeRequest {
+ string targetK8sVersion = 1;
+}
+
+message ClusterUpgradeResponse {
+ repeated SummaryValidationResult results = 1;
+}
+
+service ApplicationService {
+ rpc GetClusterUpgradeSummaryValidationResult(ClusterUpgradeRequest) returns (ClusterUpgradeResponse) {}
+}
+
+message SummaryValidationResult  {
+  string FileName = 1;
+  string Kind=2;
+  string APIVersion=3;
+  string ResourceName=4;
+  string ResourceNamespace=5;
+  bool Deleted=6;
+  bool Deprecated=7;
+  string LatestAPIVersion=8;
+  int32 IsVersionSupported=9;
+  repeated SummarySchemaError ErrorsForOriginal =10;
+  repeated SummarySchemaError ErrorsForLatest=11;
+  repeated SummarySchemaError DeprecationForOriginal=12;
+  repeated  SummarySchemaError DeprecationForLatest=13;
+}
+message  SummarySchemaError  {
+  string Path = 1;
+  string SchemaField=2;
+  string Reason=3;
+  string Origin =4;
+}

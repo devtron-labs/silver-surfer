@@ -27,11 +27,14 @@ import (
 	log2 "github.com/devtron-labs/silver-surfer/pkg/log"
 	"github.com/prometheus/common/log"
 	"io/ioutil"
+	log3 "log"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"syscall"
 
 	"github.com/fatih/color"
 	multierror "github.com/hashicorp/go-multierror"
@@ -106,6 +109,7 @@ var RootCmd = &cobra.Command{
 		//	os.Exit(1)
 		//}
 		if len(args) > 0 || len(directories) > 0 {
+			// code flow will enter here when --directories is provided in the command
 			success = processFiles(args)
 		} else {
 			success = processCluster()
@@ -285,5 +289,22 @@ func init() {
 }
 
 func main() {
-	Execute()
+	go Execute()
+	app, err := InitializeApp()
+	if err != nil {
+		log3.Panic(err)
+	}
+	//     gracefulStop start
+	var gracefulStop = make(chan os.Signal)
+	signal.Notify(gracefulStop, syscall.SIGTERM)
+	signal.Notify(gracefulStop, syscall.SIGINT)
+	go func() {
+		sig := <-gracefulStop
+		fmt.Printf("caught sig: %+v", sig)
+		app.Stop()
+		os.Exit(0)
+	}()
+	//      gracefulStop end
+	app.Start()
+
 }

@@ -99,6 +99,7 @@ func ValidateCluster(cluster *pkg.Cluster, conf *pkg.Config) ([]pkg.ValidationRe
 		kLog.Error(err)
 		serverVersion = conf.TargetKubernetesVersion
 	}
+	fmt.Println("current cluster server version:- ", serverVersion)
 	resources, err := kubeC.GetKinds(serverVersion)
 	if err != nil {
 		kLog.Error(err)
