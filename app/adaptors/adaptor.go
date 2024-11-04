@@ -6,7 +6,7 @@ import (
 )
 
 func ConvertSummaryValidationResultToGrpcObj(req []pkg.SummaryValidationResult) []*grpc.SummaryValidationResult {
-	resp := make([]*grpc.SummaryValidationResult, len(req))
+	resp := make([]*grpc.SummaryValidationResult, 0, len(req))
 	for _, item := range req {
 		svr := &grpc.SummaryValidationResult{
 			FileName:               item.FileName,
@@ -29,7 +29,7 @@ func ConvertSummaryValidationResultToGrpcObj(req []pkg.SummaryValidationResult) 
 }
 
 func ConvertSummarySchemaErrorToGrpcObj(req []*pkg.SummarySchemaError) []*grpc.SummarySchemaError {
-	resp := make([]*grpc.SummarySchemaError, len(req))
+	resp := make([]*grpc.SummarySchemaError, 0, len(req))
 	for _, item := range req {
 		if item != nil {
 			sse := &grpc.SummarySchemaError{
