@@ -368,6 +368,7 @@ func (j *jsonOutputManager) PutBulk(vrs []ValidationResult) error {
 			FileName:           vr.FileName,
 			IsVersionSupported: vr.IsVersionSupported,
 			LatestAPIVersion:   vr.LatestAPIVersion,
+			ResourceNamespace:  vr.ResourceNamespace,
 		}
 		for _, se := range vr.ErrorsForOriginal {
 			sse := &SummarySchemaError{
