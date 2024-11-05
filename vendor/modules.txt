@@ -21,12 +21,6 @@ github.com/devtron-labs/common-lib/utils/k8s/commonBean
 github.com/devtron-labs/common-lib/utils/k8sObjectsUtil
 github.com/devtron-labs/common-lib/utils/remoteConnection/bean
 github.com/devtron-labs/common-lib/utils/yaml
-# github.com/devtron-labs/common-lib-private v0.18.1-0.20241004120212-a94989160991
-## explicit; go 1.21
-github.com/devtron-labs/common-lib-private/sshTunnel
-github.com/devtron-labs/common-lib-private/sshTunnel/bean
-github.com/devtron-labs/common-lib-private/utils/k8s
-github.com/devtron-labs/common-lib-private/utils/ssh
 # github.com/docker/cli v24.0.6+incompatible
 ## explicit
 github.com/docker/cli/cli/config/types
@@ -278,15 +272,6 @@ go.uber.org/zap/internal/bufferpool
 go.uber.org/zap/internal/color
 go.uber.org/zap/internal/exit
 go.uber.org/zap/zapcore
-# golang.org/x/crypto v0.26.0
-## explicit; go 1.20
-golang.org/x/crypto/blowfish
-golang.org/x/crypto/chacha20
-golang.org/x/crypto/curve25519
-golang.org/x/crypto/internal/alias
-golang.org/x/crypto/internal/poly1305
-golang.org/x/crypto/ssh
-golang.org/x/crypto/ssh/internal/bcrypt_pbkdf
 # golang.org/x/net v0.28.0
 ## explicit; go 1.18
 golang.org/x/net/context
@@ -300,12 +285,8 @@ golang.org/x/net/trace
 ## explicit; go 1.18
 golang.org/x/oauth2
 golang.org/x/oauth2/internal
-# golang.org/x/sync v0.8.0
-## explicit; go 1.18
-golang.org/x/sync/errgroup
 # golang.org/x/sys v0.24.0
 ## explicit; go 1.18
-golang.org/x/sys/cpu
 golang.org/x/sys/plan9
 golang.org/x/sys/unix
 golang.org/x/sys/windows
