@@ -4,7 +4,8 @@ option go_package = "github.com/devtron-labs/silver-surfer/app/grpc";
 
 // Define the request message
 message ClusterUpgradeRequest {
- string targetK8sVersion = 1;
+  string targetK8sVersion = 1;
+  ClusterConfig clusterConfig = 2;
 }
 
 message ClusterUpgradeResponse {
@@ -35,4 +36,38 @@ message  SummarySchemaError  {
   string Path = 1;
   string SchemaField=2;
   string Reason=3;
+}
+
+message ClusterConfig {
+  string apiServerUrl = 1;
+  string token = 2;
+  int32 clusterId = 3;
+  string clusterName = 4;
+  bool insecureSkipTLSVerify = 5;
+  string keyData = 6;
+  string certData = 7;
+  string caData = 8;
+  RemoteConnectionConfig RemoteConnectionConfig = 9;
+}
+
+message RemoteConnectionConfig {
+  RemoteConnectionMethod RemoteConnectionMethod = 1;
+  ProxyConfig ProxyConfig = 2;
+  SSHTunnelConfig SSHTunnelConfig = 3;
+}
+enum RemoteConnectionMethod {
+  PROXY = 0;
+  SSH = 1;
+  DIRECT = 2 ;
+}
+
+message ProxyConfig {
+  string ProxyUrl = 1;
+}
+
+message SSHTunnelConfig {
+  string SSHServerAddress = 1;
+  string SSHUsername = 2;
+  string SSHPassword = 3;
+  string SSHAuthKey = 4;
 }

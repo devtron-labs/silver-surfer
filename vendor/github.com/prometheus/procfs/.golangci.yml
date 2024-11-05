@@ -1,6 +1,15 @@
-# Run only staticcheck for now. Additional linters will be enabled one-by-one.
+---
 linters:
   enable:
-  - staticcheck
-  - govet
-  disable-all: true
+  - godot
+  - misspell
+  - revive
+
+linter-settings:
+  godot:
+    capital: true
+    exclude:
+    # Ignore "See: URL"
+    - 'See:'
+  misspell:
+    locale: US

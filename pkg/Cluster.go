@@ -66,9 +66,9 @@ func NewCluster(kubeconfig string, kubecontext string) *Cluster {
 	return &cluster
 }
 
-func NewClusterViaInClusterConfig() *Cluster {
+func NewClusterViaInClusterConfig(restConfig *rest.Config) *Cluster {
 	cluster := Cluster{}
-	restConfig := &rest.Config{}
+	defaultRestConfig := &rest.Config{}
 	var err error
 	useLocalDevMode := os.Getenv("USE_LOCAL_DEV_MODE")
 	if useLocalDevMode == "true" {
@@ -78,19 +78,21 @@ func NewClusterViaInClusterConfig() *Cluster {
 		}
 		kubeconfig := flag.String("kubeconfig", filepath.Join(usr.HomeDir, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
 		//flag.Parse()
-		restConfig, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
+		defaultRestConfig, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
 		if err != nil {
 			panic(err)
 		}
+	} else if restConfig != nil {
+		defaultRestConfig = restConfig
 	} else {
-		restConfig, err = rest.InClusterConfig()
+		defaultRestConfig, err = rest.InClusterConfig()
 		if err != nil {
 			fmt.Println("error in getting rest config via InClusterConfig")
 			panic(err)
 		}
 	}
 
-	cluster.restConfig = restConfig
+	cluster.restConfig = defaultRestConfig
 	cluster.restConfig.WarningHandler = rest.NoWarnings{}
 
 	if cluster.disco, err = discovery.NewDiscoveryClientForConfig(cluster.restConfig); err != nil {

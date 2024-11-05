@@ -7,6 +7,7 @@
 package main
 
 import (
+	"github.com/devtron-labs/common-lib/utils/k8s"
 	"github.com/devtron-labs/silver-surfer/app/api"
 	"github.com/devtron-labs/silver-surfer/app/logger"
 	"github.com/devtron-labs/silver-surfer/app/service"
@@ -16,7 +17,12 @@ import (
 
 func InitializeApp() (*App, error) {
 	sugaredLogger := logger.NewSugaredLogger()
-	clusterUpgradeReadServiceImpl := service.NewClusterUpgradeReadServiceImpl(sugaredLogger)
+	runtimeConfig, err := k8s.GetRuntimeConfig()
+	if err != nil {
+		return nil, err
+	}
+	k8sServiceImpl := k8s.NewK8sUtil(sugaredLogger, runtimeConfig)
+	clusterUpgradeReadServiceImpl := service.NewClusterUpgradeReadServiceImpl(sugaredLogger, k8sServiceImpl)
 	grpcHandlerImpl := api.NewGrpcHandlerImpl(sugaredLogger, clusterUpgradeReadServiceImpl)
 	app := NewApp(sugaredLogger, grpcHandlerImpl)
 	return app, nil
