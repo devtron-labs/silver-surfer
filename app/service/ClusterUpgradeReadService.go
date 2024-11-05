@@ -32,6 +32,7 @@ func (impl *ClusterUpgradeReadServiceImpl) GetClusterUpgradeSummaryValidationRes
 	var err error
 	localClusterConfig := adaptors.ConvertGrpcObjToClusterConfig(clusterConfig)
 	if len(localClusterConfig.ClusterName) > 0 {
+		impl.logger.Infow("fetching restConfig via GetRestConfigByCluster", "clusterName", localClusterConfig.ClusterName)
 		restConfig, err = impl.k8sUtil.GetRestConfigByCluster(localClusterConfig)
 		if err != nil {
 			impl.logger.Errorw("error in getting rest config by cluster config", "clusterName", localClusterConfig.ClusterName, "err", err)
