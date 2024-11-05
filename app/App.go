@@ -1,4 +1,4 @@
-package app
+package main
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 	"github.com/devtron-labs/silver-surfer/app/constants"
 	grpc2 "github.com/devtron-labs/silver-surfer/app/grpc"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
+	grpcPrometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -81,8 +82,10 @@ func (app *App) initGrpcServer(port int) error {
 			MaxConnectionAge: 10 * time.Second,
 		}),
 		grpc.ChainStreamInterceptor(
+			grpcPrometheus.StreamServerInterceptor,
 			recovery.StreamServerInterceptor(recoveryOption)), // panic interceptor, should be at last
 		grpc.ChainUnaryInterceptor(
+			grpcPrometheus.UnaryServerInterceptor,
 			recovery.UnaryServerInterceptor(recoveryOption)), // panic interceptor, should be at last
 	}
 	// create a new gRPC grpcServer
@@ -90,7 +93,8 @@ func (app *App) initGrpcServer(port int) error {
 
 	// register Silver Surfer service
 	grpc2.RegisterSilverSurferServiceServer(app.grpcServer, app.GrpcHandler)
-
+	grpcPrometheus.EnableHandlingTimeHistogram()
+	grpcPrometheus.Register(app.grpcServer)
 	// start listening on address
 	if err = app.grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to start: %v", err)
