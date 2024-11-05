@@ -66,7 +66,7 @@ func NewCluster(kubeconfig string, kubecontext string) *Cluster {
 	return &cluster
 }
 
-func NewClusterViaInClusterConfig(restConfig *rest.Config) *Cluster {
+func NewClusterFromEnvOrConfig(restConfig *rest.Config) *Cluster {
 	cluster := Cluster{}
 	defaultRestConfig := &rest.Config{}
 	var err error

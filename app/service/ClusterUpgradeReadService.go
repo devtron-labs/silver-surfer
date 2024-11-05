@@ -38,7 +38,7 @@ func (impl *ClusterUpgradeReadServiceImpl) GetClusterUpgradeSummaryValidationRes
 			return nil, err
 		}
 	}
-	cluster := pkg.NewClusterViaInClusterConfig(restConfig)
+	cluster := pkg.NewClusterFromEnvOrConfig(restConfig)
 	results, err := kubedd.ValidateCluster(cluster, &pkg.Config{TargetKubernetesVersion: targetK8sVersion})
 	if err != nil {
 		impl.logger.Errorw("error in ValidateCluster", "err", err)
