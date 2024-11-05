@@ -1,5 +1,5 @@
 syntax = "proto3";
-
+package client.silverSurfer.grpc;
 option go_package = "github.com/devtron-labs/silver-surfer/app/grpc";
 
 // Define the request message

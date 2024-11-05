@@ -35,7 +35,7 @@ func NewSilverSurferServiceClient(cc grpc.ClientConnInterface) SilverSurferServi
 
 func (c *silverSurferServiceClient) GetClusterUpgradeSummaryValidationResult(ctx context.Context, in *ClusterUpgradeRequest, opts ...grpc.CallOption) (*ClusterUpgradeResponse, error) {
 	out := new(ClusterUpgradeResponse)
-	err := c.cc.Invoke(ctx, "/SilverSurferService/GetClusterUpgradeSummaryValidationResult", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/client.silverSurfer.grpc.SilverSurferService/GetClusterUpgradeSummaryValidationResult", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func _SilverSurferService_GetClusterUpgradeSummaryValidationResult_Handler(srv i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/SilverSurferService/GetClusterUpgradeSummaryValidationResult",
+		FullMethod: "/client.silverSurfer.grpc.SilverSurferService/GetClusterUpgradeSummaryValidationResult",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SilverSurferServiceServer).GetClusterUpgradeSummaryValidationResult(ctx, req.(*ClusterUpgradeRequest))
@@ -92,7 +92,7 @@ func _SilverSurferService_GetClusterUpgradeSummaryValidationResult_Handler(srv i
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var SilverSurferService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "SilverSurferService",
+	ServiceName: "client.silverSurfer.grpc.SilverSurferService",
 	HandlerType: (*SilverSurferServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
