@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+	"fmt"
 	k8s2 "github.com/devtron-labs/common-lib/utils/k8s"
 	"github.com/devtron-labs/silver-surfer/app/adaptors"
 	"github.com/devtron-labs/silver-surfer/app/constants"
@@ -43,6 +45,9 @@ func (impl *ClusterUpgradeReadServiceImpl) GetClusterUpgradeSummaryValidationRes
 	results, err := kubedd.ValidateCluster(cluster, &pkg.Config{TargetKubernetesVersion: targetK8sVersion})
 	if err != nil {
 		impl.logger.Errorw("error in ValidateCluster", "err", err)
+		if err.Error() == fmt.Sprintf(pkg.OpenApiSpecNotFoundError, targetK8sVersion) {
+			return nil, errors.New(fmt.Sprintf(pkg.OpenApiSpecNotFoundError, targetK8sVersion))
+		}
 		return nil, err
 	}
 	outputManager := pkg.GetOutputManager(constants.OutputJson, false)
