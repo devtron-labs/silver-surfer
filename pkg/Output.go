@@ -43,6 +43,7 @@ type OutputManager interface {
 	PutBulk(r []ValidationResult) error
 	Put(r ValidationResult) error
 	Flush() error
+	GetSummaryValidationResultBulk() []SummaryValidationResult
 }
 
 const (
@@ -300,6 +301,10 @@ func (s *STDOutputManager) Flush() error {
 	return nil
 }
 
+func (j *STDOutputManager) GetSummaryValidationResultBulk() []SummaryValidationResult {
+	return nil
+}
+
 type status string
 
 const (
@@ -349,7 +354,7 @@ func getStatus(r ValidationResult) status {
 }
 
 func (j *jsonOutputManager) PutBulk(vrs []ValidationResult) error {
-	svrs := make([]SummaryValidationResult, len(vrs))
+	svrs := make([]SummaryValidationResult, 0, len(vrs))
 	for _, vr := range vrs {
 		if vr.Deleted == false && vr.Deprecated == false && len(vr.ErrorsForLatest) == 0 && len(vr.ErrorsForOriginal) == 0 && len(vr.DeprecationForLatest) == 0 && len(vr.DeprecationForOriginal) == 0 {
 			continue
@@ -363,6 +368,7 @@ func (j *jsonOutputManager) PutBulk(vrs []ValidationResult) error {
 			FileName:           vr.FileName,
 			IsVersionSupported: vr.IsVersionSupported,
 			LatestAPIVersion:   vr.LatestAPIVersion,
+			ResourceNamespace:  vr.ResourceNamespace,
 		}
 		for _, se := range vr.ErrorsForOriginal {
 			sse := &SummarySchemaError{
@@ -483,6 +489,10 @@ func (j *jsonOutputManager) Flush() error {
 	return nil
 }
 
+func (j *jsonOutputManager) GetSummaryValidationResultBulk() []SummaryValidationResult {
+	return j.data
+}
+
 // tapOutputManager reports `conftest` results to stdout.
 type tapOutputManager struct {
 	logger *log.Logger
@@ -561,5 +571,9 @@ func (j *tapOutputManager) Flush() error {
 			}
 		}
 	}
+	return nil
+}
+
+func (j *tapOutputManager) GetSummaryValidationResultBulk() []SummaryValidationResult {
 	return nil
 }
