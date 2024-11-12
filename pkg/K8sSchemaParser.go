@@ -20,6 +20,7 @@ package pkg
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/getkin/kin-openapi/openapi2"
 	"github.com/getkin/kin-openapi/openapi2conv"
@@ -114,6 +115,9 @@ func (k *kubeCheckerImpl) downloadFile(releaseVersion string) ([]byte, error) {
 		return []byte{}, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNotFound {
+		return []byte{}, errors.New(fmt.Sprintf(OpenApiSpecNotFoundError, releaseVersion))
+	}
 	var out bytes.Buffer
 	_, err = io.Copy(&out, resp.Body)
 	if err != nil {

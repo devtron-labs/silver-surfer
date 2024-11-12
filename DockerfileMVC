@@ -1,0 +1,19 @@
+# Binary Build
+FROM golang:1.21-alpine3.17  AS build-env
+RUN echo $GOPATH
+RUN apk add --no-cache git gcc musl-dev
+RUN apk add --update make
+RUN mkdir /silver-surfer
+WORKDIR /silver-surfer
+ADD . /silver-surfer/
+RUN rm -rf ./bin
+RUN mkdir ./bin
+RUN GOOS=linux go build -o ./bin/kubedd-mvc ./app
+
+# Prod Build
+FROM alpine:3.17
+RUN apk add --no-cache ca-certificates
+RUN apk update
+RUN apk add git
+COPY --from=build-env  /silver-surfer/bin .
+ENTRYPOINT ["./kubedd-mvc"]
