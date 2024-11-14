@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/devtron-labs/silver-surfer/pkg/errors"
 	"github.com/getkin/kin-openapi/openapi2"
 	"github.com/getkin/kin-openapi/openapi2conv"
 	"github.com/getkin/kin-openapi/openapi3"
@@ -115,7 +116,7 @@ func (k *kubeCheckerImpl) downloadFile(releaseVersion string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusNotFound {
-		return []byte{}, ErrOpenApiSpecNotFound
+		return []byte{}, errors.ErrOpenApiSpecNotFound
 	}
 	var out bytes.Buffer
 	_, err = io.Copy(&out, resp.Body)
