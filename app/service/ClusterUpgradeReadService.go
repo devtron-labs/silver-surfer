@@ -45,7 +45,7 @@ func (impl *ClusterUpgradeReadServiceImpl) GetClusterUpgradeSummaryValidationRes
 	results, err := kubedd.ValidateCluster(cluster, &pkg.Config{TargetKubernetesVersion: targetK8sVersion})
 	if err != nil {
 		impl.logger.Errorw("error in ValidateCluster", "err", err)
-		if err.Error() == fmt.Sprintf(pkg.OpenApiSpecNotFoundError, targetK8sVersion) {
+		if errors.Is(err, pkg.ErrOpenApiSpecNotFound) {
 			return nil, errors.New(fmt.Sprintf(pkg.OpenApiSpecNotFoundError, targetK8sVersion))
 		}
 		return nil, err

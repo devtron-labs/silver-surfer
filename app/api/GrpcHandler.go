@@ -25,7 +25,7 @@ func NewGrpcHandlerImpl(
 }
 
 func (impl *GrpcHandlerImpl) GetClusterUpgradeSummaryValidationResult(ctx context.Context, request *grpc.ClusterUpgradeRequest) (*grpc.ClusterUpgradeResponse, error) {
-	impl.logger.Infow("scan cluster resources compatibility for k8s version upgrade request", "request", request)
+	impl.logger.Infow("scan cluster resources compatibility for k8s version upgrade request", "clusterId", request.ClusterConfig.ClusterId, "clusterName", request.ClusterConfig.ClusterName, "serverUrl", request.ClusterConfig.ApiServerUrl)
 	summaryValidationResult, err := impl.clusterUpgradeReadService.GetClusterUpgradeSummaryValidationResult(request.TargetK8SVersion, request.ClusterConfig)
 	if err != nil {
 		impl.logger.Errorw("error in getting cluster upgrade summary validation result", "targetK8sVersion", request.TargetK8SVersion, "err", err)
