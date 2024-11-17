@@ -30,8 +30,6 @@ import (
 const (
 	gvFormat  = "%s/%s"
 	gvkFormat = "%s/%s/%s"
-
-	OpenApiSpecNotFoundError = "openapi-spec not found for the k8s version %s"
 )
 
 func getKeyForGV(msg json.RawMessage) (string, error) {
