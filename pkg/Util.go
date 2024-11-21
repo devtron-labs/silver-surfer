@@ -28,8 +28,8 @@ import (
 )
 
 const (
-	gvFormat          = "%s/%s"
-	gvkFormat         = "%s/%s/%s"
+	gvFormat  = "%s/%s"
+	gvkFormat = "%s/%s/%s"
 )
 
 func getKeyForGV(msg json.RawMessage) (string, error) {
@@ -202,7 +202,7 @@ func RegexMatch(s string, pattern string) bool {
 	}
 	if strings.Count(lp, "*") == 2 {
 		np := strings.ReplaceAll(lp, "*", "")
-		return strings.Contains(ls,np)
+		return strings.Contains(ls, np)
 	}
 	if strings.Index(lp, "*") == 0 {
 		np := strings.ReplaceAll(lp, "*", "")

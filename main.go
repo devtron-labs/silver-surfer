@@ -25,18 +25,16 @@ import (
 	"github.com/devtron-labs/silver-surfer/kubedd"
 	"github.com/devtron-labs/silver-surfer/pkg"
 	log2 "github.com/devtron-labs/silver-surfer/pkg/log"
-	"github.com/prometheus/common/log"
+	"github.com/fatih/color"
+	multierror "github.com/hashicorp/go-multierror"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
-
-	"github.com/fatih/color"
-	multierror "github.com/hashicorp/go-multierror"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -106,6 +104,7 @@ var RootCmd = &cobra.Command{
 		//	os.Exit(1)
 		//}
 		if len(args) > 0 || len(directories) > 0 {
+			// code flow will enter here when --directories is provided in the command
 			success = processFiles(args)
 		} else {
 			success = processCluster()
@@ -121,7 +120,7 @@ func processFiles(args []string) bool {
 	outputManager := pkg.GetOutputManager(config.OutputFormat, noColor)
 	files, err := aggregateFiles(args)
 	if err != nil {
-		log.Error(err)
+		log2.Error(err)
 		success = false
 	}
 
@@ -130,7 +129,7 @@ func processFiles(args []string) bool {
 		filePath, _ := filepath.Abs(fileName)
 		fileContents, err := ioutil.ReadFile(filePath)
 		if err != nil {
-			log.Error(fmt.Errorf("Could not open file %v", fileName))
+			log2.Error(fmt.Errorf("Could not open file %v", fileName))
 			earlyExit()
 			success = false
 			continue
@@ -138,7 +137,7 @@ func processFiles(args []string) bool {
 		config.FileName = fileName
 		results, err := kubedd.Validate(fileContents, config)
 		if err != nil {
-			log.Error(err)
+			log2.Error(err)
 			earlyExit()
 			success = false
 			continue
@@ -158,7 +157,7 @@ func processFiles(args []string) bool {
 	// flush any final logs which may be sitting in the buffer
 	err = outputManager.Flush()
 	if err != nil {
-		log.Error(err)
+		log2.Error(err)
 		success = false
 	}
 	return success
@@ -170,7 +169,7 @@ func processCluster() bool {
 	cluster := pkg.NewCluster(kubeconfig, kubecontext)
 	results, err := kubedd.ValidateCluster(cluster, config)
 	if err != nil {
-		log.Error(err)
+		log2.Error(err)
 		earlyExit()
 		success = false
 		return success
@@ -186,7 +185,7 @@ func processCluster() bool {
 	success = success && !hasErrors(results)
 	err = outputManager.Flush()
 	if err != nil {
-		log.Error(err)
+		log2.Error(err)
 		success = false
 	}
 	return success
@@ -257,7 +256,7 @@ func earlyExit() {
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
-		log.Error(err)
+		log2.Error(err)
 		os.Exit(-1)
 	}
 }
