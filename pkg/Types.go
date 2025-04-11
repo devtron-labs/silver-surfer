@@ -23,9 +23,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/xeipuuv/gojsonschema"
-	"strconv"
 )
 
 var SchemaErrorDetailsDisabled = true
@@ -58,6 +59,7 @@ type ValidationResult struct {
 	Deprecated             bool
 	LatestAPIVersion       string
 	IsVersionSupported     int
+	Resource               map[string]interface{} `json:"resource,omitempty"`
 }
 
 type SummarySchemaError struct {

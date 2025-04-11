@@ -20,12 +20,13 @@ package pkg
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strings"
+
 	"github.com/devtron-labs/silver-surfer/pkg/log"
 	"github.com/getkin/kin-openapi/openapi3"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/yaml"
-	"sort"
-	"strings"
 )
 
 type kubeSpec struct {
@@ -64,6 +65,7 @@ func (ks *kubeSpec) ValidateJson(spec string) (ValidationResult, error) {
 func (ks *kubeSpec) ValidateObject(object map[string]interface{}) (ValidationResult, error) {
 	validationResult, err := ks.populateValidationResult(object)
 	validationResult.ValidatedAgainstSchema = true
+	validationResult.Resource = object
 	if err != nil {
 		return validationResult, err
 	}
@@ -88,10 +90,6 @@ func (ks *kubeSpec) ValidateObject(object map[string]interface{}) (ValidationRes
 		validationResult.ErrorsForOriginal = ves
 		validationResult.DeprecationForOriginal = des
 		validationResult.Deprecated = deprecated
-		//if original == latest {
-		//	validationResult.ErrorsForLatest = ves
-		//	validationResult.DeprecationForLatest = des
-		//}
 	} else if len(latest) == 0 { //if original and latest both are not present i.e; this has been completely removed eg psp
 		validationResult.Deleted = true
 		validationResult.IsVersionSupported = 2

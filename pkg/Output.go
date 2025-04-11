@@ -23,16 +23,19 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/mgutz/ansi"
 	"sort"
 	"strings"
 
+	"github.com/fatih/color"
+	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/mgutz/ansi"
+
 	//"github.com/olekukonko/tablewriter"
-	"github.com/tomlazar/table"
 	"log"
 	"os"
+
+	"github.com/tomlazar/table"
+	"gopkg.in/yaml.v3"
 )
 
 // OutputManager controls how results of the `kubedd` evaluation will be recorded
@@ -44,6 +47,7 @@ type OutputManager interface {
 	Put(r ValidationResult) error
 	Flush() error
 	GetSummaryValidationResultBulk() []SummaryValidationResult
+	GenerateMigrationFiles(results []ValidationResult, outputDir string) error
 }
 
 const (
@@ -576,4 +580,86 @@ func (j *tapOutputManager) Flush() error {
 
 func (j *tapOutputManager) GetSummaryValidationResultBulk() []SummaryValidationResult {
 	return nil
+}
+
+type MigrationFileGenerator struct {
+	outputDir string
+	noColor   bool
+}
+
+func NewMigrationFileGenerator(outputDir string, noColor bool) *MigrationFileGenerator {
+	return &MigrationFileGenerator{
+		outputDir: outputDir,
+		noColor:   noColor,
+	}
+}
+
+func (m *MigrationFileGenerator) GenerateMigrationFiles(results []ValidationResult) error {
+	if err := os.MkdirAll(m.outputDir, 0755); err != nil {
+		return fmt.Errorf("failed to create output directory: %v", err)
+	}
+
+	for _, result := range results {
+		// Generate migration file for each resource, even if it has errors
+		if err := m.generateMigrationFile(result); err != nil {
+			return fmt.Errorf("failed to generate migration file for %s/%s: %v",
+				result.ResourceNamespace, result.ResourceName, err)
+		}
+	}
+	return nil
+}
+
+func (m *MigrationFileGenerator) generateMigrationFile(result ValidationResult) error {
+	// Create filename based on resource details
+	filename := fmt.Sprintf("%s/%s-%s-%s.yaml",
+		m.outputDir,
+		result.ResourceNamespace,
+		result.ResourceName,
+		strings.ToLower(result.Kind))
+
+	// Start with the original resource structure
+	manifest := make(map[string]interface{})
+	if result.Resource != nil {
+		// Deep copy the resource
+		for k, v := range result.Resource {
+			manifest[k] = v
+		}
+	}
+
+	// Update the API version to the latest version and ensure kind is set
+	manifest["apiVersion"] = result.LatestAPIVersion
+	manifest["kind"] = result.Kind
+
+	// Ensure metadata exists and is properly set
+	if _, ok := manifest["metadata"]; !ok {
+		manifest["metadata"] = make(map[string]interface{})
+	}
+	metadata := manifest["metadata"].(map[string]interface{})
+	metadata["name"] = result.ResourceName
+	if result.ResourceNamespace != "" && result.ResourceNamespace != "undefined" {
+		metadata["namespace"] = result.ResourceNamespace
+	}
+
+	// Write the migration file
+	data, err := yaml.Marshal(manifest)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(filename, data, 0644)
+}
+
+func (s *STDOutputManager) GenerateMigrationFiles(results []ValidationResult, outputDir string) error {
+	generator := NewMigrationFileGenerator(outputDir, s.noColor)
+	return generator.GenerateMigrationFiles(results)
+}
+
+func (j *jsonOutputManager) GenerateMigrationFiles(results []ValidationResult, outputDir string) error {
+	generator := NewMigrationFileGenerator(outputDir, false)
+	return generator.GenerateMigrationFiles(results)
+}
+
+func (j *tapOutputManager) GenerateMigrationFiles(results []ValidationResult, outputDir string) error {
+	generator := NewMigrationFileGenerator(outputDir, false)
+	return generator.GenerateMigrationFiles(results)
 }

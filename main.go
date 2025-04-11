@@ -22,6 +22,14 @@ package main
 import (
 	"crypto/tls"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
+
 	"github.com/devtron-labs/silver-surfer/kubedd"
 	"github.com/devtron-labs/silver-surfer/pkg"
 	log2 "github.com/devtron-labs/silver-surfer/pkg/log"
@@ -29,12 +37,6 @@ import (
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"io/ioutil"
-	"net/http"
-	"os"
-	"path/filepath"
-	"regexp"
-	"strings"
 )
 
 var (
@@ -51,6 +53,8 @@ var (
 	forceColor bool
 
 	config = pkg.NewDefaultConfig()
+	generateMigrationFiles bool
+	migrationOutputDir     string
 )
 
 /*
@@ -160,6 +164,15 @@ func processFiles(args []string) bool {
 		log2.Error(err)
 		success = false
 	}
+
+	if generateMigrationFiles {
+		generator := pkg.NewMigrationFileGenerator(migrationOutputDir, noColor)
+		if err := generator.GenerateMigrationFiles(aggResults); err != nil {
+			log.Fatalf("Failed to generate migration files: %v", err)
+		}
+		fmt.Printf("Migration files generated in directory: %s\n", migrationOutputDir)
+	}
+
 	return success
 }
 
@@ -188,6 +201,15 @@ func processCluster() bool {
 		log2.Error(err)
 		success = false
 	}
+
+	if generateMigrationFiles {
+		generator := pkg.NewMigrationFileGenerator(migrationOutputDir, noColor)
+		if err := generator.GenerateMigrationFiles(results); err != nil {
+			log.Fatalf("Failed to generate migration files: %v", err)
+		}
+		fmt.Printf("Migration files generated in directory: %s\n", migrationOutputDir)
+	}
+
 	return success
 }
 
@@ -276,6 +298,8 @@ func init() {
 	RootCmd.Flags().StringSliceVarP(&ignoredPathPatterns, "ignored-filename-patterns", "", []string{}, "An alias for ignored-path-patterns")
 	RootCmd.Flags().StringVarP(&kubeconfig, "kubeconfig", "", "", "Path of kubeconfig file of cluster to be scanned")
 	RootCmd.Flags().StringVarP(&kubecontext, "kubecontext", "", "", "Kubecontext to be selected")
+	RootCmd.Flags().BoolVar(&generateMigrationFiles, "generate-migration-files", false, "Generate migration files for API version updates")
+	RootCmd.Flags().StringVar(&migrationOutputDir, "migration-output-dir", "migrations", "Directory to store generated migration files")
 
 	viper.SetEnvPrefix("KUBEADD")
 	viper.AutomaticEnv()
