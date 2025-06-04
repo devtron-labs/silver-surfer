@@ -11,10 +11,13 @@ Please refer to the [release notes page](https://github.com/devtron-labs/silver-
 
 Here's are couple of feature and updates that we are planning to work on.
 
-- Integration of Helm Charts
-- Generate the K8s manifests automatically for running workloads with updated configurations for cluster upgrades
-- Built capability to run silver-surfer as a server. Currently it runs as an executtable
-- Publish silver as homebrew package
+- Generate the K8s manifests automatically for running workloads with updated configurations for cluster upgrades.
+- Support for Helm releases pre-upgrade check.
+- Support for CRD check compatibility.
+- Publish silver surfer as homebrew package.
+- Support for in-cluster config.
+- Support for Helm Chart.
+- Built capability to run silver-surfer as a server.
 
 ## Feedback channels
 
