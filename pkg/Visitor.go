@@ -30,15 +30,16 @@ func VisitJSON(schema *openapi3.Schema, value interface{}, settings SchemaSettin
 	return visitJSON(schema, value, settings)
 }
 
+// scm-> curr version and value -> target
 func visitJSON(schema *openapi3.Schema, value interface{}, settings SchemaSettings) openapi3.MultiError {
 	var me openapi3.MultiError
 	switch value := value.(type) {
 	case nil, bool, float64, string, int64:
 		if strings.Index(strings.ToLower(schema.Description), "deprecated") >= 0 {
 			schemaError := &SchemaError{
-				Value:       "",
-				Schema:      schema,
-				Reason:      schema.Description,
+				Value:  "",
+				Schema: schema,
+				Reason: schema.Description,
 			}
 			me = append(me, schemaError)
 		}
@@ -49,9 +50,9 @@ func visitJSON(schema *openapi3.Schema, value interface{}, settings SchemaSettin
 		return visitJSONObject(schema, value, settings)
 	default:
 		schemaError := &SchemaError{
-			Value:       value,
-			Schema:      schema,
-			Reason:      "unhandled key",
+			Value:  value,
+			Schema: schema,
+			Reason: "unhandled key",
 		}
 		me = append(me, schemaError)
 		return me
@@ -74,9 +75,9 @@ func visitJSONObject(schema *openapi3.Schema, object map[string]interface{}, set
 	var me openapi3.MultiError
 	if strings.Index(strings.ToLower(schema.Description), "deprecated") >= 0 {
 		schemaError := &SchemaError{
-			Value:       "",
-			Schema:      schema,
-			Reason:      schema.Description,
+			Value:  "",
+			Schema: schema,
+			Reason: schema.Description,
 		}
 		me = append(me, schemaError)
 		if !settings.MultiError {

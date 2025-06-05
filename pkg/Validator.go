@@ -60,6 +60,7 @@ func (ks *kubeSpec) ValidateJson(spec string) (ValidationResult, error) {
 	return ks.ValidateObject(object)
 }
 
+// ks -> holds current server version of cluster , object -> target k8s version's object
 func (ks *kubeSpec) ValidateObject(object map[string]interface{}) (ValidationResult, error) {
 	validationResult, err := ks.populateValidationResult(object)
 	validationResult.ValidatedAgainstSchema = true
@@ -119,6 +120,7 @@ func (ks *kubeSpec) ValidateObject(object map[string]interface{}) (ValidationRes
 	return validationResult, nil
 }
 
+// buildGVKRestPathMap goes through openApi3 spec of specified k8s version and prepares map of gvk, and it's api-server path
 func (ks *kubeSpec) buildGVKRestPathMap() map[string]string {
 	pathMap := map[string]string{}
 	for path, value := range ks.T.Paths {
